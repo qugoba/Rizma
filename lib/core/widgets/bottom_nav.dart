@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../constants/app_assets.dart';
+import '../strings/ar.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -15,10 +16,22 @@ class BottomNav extends StatelessWidget {
   final ValueChanged<RizmaTab> onSelected;
 
   static const _items = [
-    (tab: RizmaTab.home, label: 'الرئيسية', asset: AppAssets.navHome),
-    (tab: RizmaTab.subjects, label: 'المواد', asset: AppAssets.navBook),
-    (tab: RizmaTab.progress, label: 'تقدّمي', asset: AppAssets.navChart),
-    (tab: RizmaTab.profile, label: 'حسابي', asset: AppAssets.navUser),
+    (tab: RizmaTab.home, label: ArStrings.navHome, asset: AppAssets.navHome),
+    (
+      tab: RizmaTab.subjects,
+      label: ArStrings.navSubjects,
+      asset: AppAssets.navBook,
+    ),
+    (
+      tab: RizmaTab.progress,
+      label: ArStrings.navProgress,
+      asset: AppAssets.navChart,
+    ),
+    (
+      tab: RizmaTab.profile,
+      label: ArStrings.navProfile,
+      asset: AppAssets.navUser,
+    ),
   ];
 
   @override
@@ -31,7 +44,7 @@ class BottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 18),
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 10, 16, 18),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

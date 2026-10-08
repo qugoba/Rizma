@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../app/routes.dart';
 import '../../core/constants/app_assets.dart';
 import '../../core/models/student_profile.dart';
+import '../../core/strings/ar.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/primary_button.dart';
-import '../home/home_screen.dart';
 
 class _GradeGroup {
   const _GradeGroup({
@@ -21,15 +23,19 @@ class _GradeGroup {
 }
 
 const _groups = [
-  _GradeGroup(title: 'الصفوف 1–4', hint: 'صور وصوت أكثر', grades: [1, 2, 3, 4]),
   _GradeGroup(
-    title: 'الصفوف 5–8',
-    hint: 'تدريبات وتقدّم',
+    title: ArStrings.gradeGroup14,
+    hint: ArStrings.gradeGroup14Hint,
+    grades: [1, 2, 3, 4],
+  ),
+  _GradeGroup(
+    title: ArStrings.gradeGroup58,
+    hint: ArStrings.gradeGroup58Hint,
     grades: [5, 6, 7, 8],
   ),
   _GradeGroup(
-    title: 'الصفوف 9–12',
-    hint: 'ملخّصات وامتحانات',
+    title: ArStrings.gradeGroup912,
+    hint: ArStrings.gradeGroup912Hint,
     grades: [9, 10, 11, 12],
   ),
 ];
@@ -66,10 +72,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
       name: _nameController.text.trim(),
       grade: _selectedGrade!,
     );
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(builder: (_) => HomeScreen(profile: profile)),
-      (route) => false,
-    );
+    context.go(AppRoutes.home, extra: profile);
   }
 
   @override
@@ -80,9 +83,13 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _TopBar(onBack: () => Navigator.of(context).maybePop()),
+              _TopBar(
+                onBack: () => context.canPop()
+                    ? context.pop()
+                    : context.go(AppRoutes.welcome),
+              ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                padding: const EdgeInsetsDirectional.fromSTEB(20, 12, 20, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   spacing: 20,
@@ -96,13 +103,13 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
                             setState(() => _selectedGrade = grade),
                       ),
                     Text(
-                      'يمكنك تغيير الصف لاحقًا من حسابك.',
+                      ArStrings.gradeChangeLater,
                       style: AppTextStyles.caption13,
                     ),
                     PrimaryButton(
                       label: _selectedGrade == null
-                          ? 'متابعة'
-                          : 'متابعة · الصف $_selectedGrade',
+                          ? ArStrings.continueLabel
+                          : ArStrings.continueWithGrade(_selectedGrade!),
                       iconAsset: AppAssets.fwdGrade,
                       onPressed: _canContinue ? _continue : null,
                     ),
@@ -125,13 +132,13 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+      padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 4),
       child: Row(
         spacing: 12,
         children: [
           Semantics(
             button: true,
-            label: 'رجوع',
+            label: ArStrings.back,
             excludeSemantics: true,
             child: Material(
               color: AppColors.mute,
@@ -157,8 +164,8 @@ class _TopBar extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('خطوة 1 من 2', style: AppTextStyles.caption13),
-                Text('اختر صفّك', style: AppTextStyles.heading22),
+                Text(ArStrings.gradeStep, style: AppTextStyles.caption13),
+                Text(ArStrings.gradeTitle, style: AppTextStyles.heading22),
               ],
             ),
           ),
@@ -185,7 +192,7 @@ class _NameField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 6,
       children: [
-        Text('ما اسمك؟', style: AppTextStyles.body16Strong),
+        Text(ArStrings.nameLabel, style: AppTextStyles.body16Strong),
         SizedBox(
           height: 52,
           child: TextField(
@@ -195,7 +202,7 @@ class _NameField extends StatelessWidget {
             textCapitalization: TextCapitalization.words,
             cursorColor: AppColors.teal,
             decoration: InputDecoration(
-              hintText: 'اكتب اسمك',
+              hintText: ArStrings.nameHint,
               hintStyle: AppTextStyles.input17.copyWith(
                 color: AppColors.disabled,
               ),
@@ -277,7 +284,7 @@ class _GradeTile extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: 'الصف $grade',
+      label: ArStrings.gradeSemantics(grade),
       excludeSemantics: true,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),

@@ -1,42 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:rizma/app/rizma_app.dart';
+import 'package:rizma/core/strings/ar.dart';
+
+import 'helpers/load_fonts.dart';
 
 void main() {
-  setUp(() => GoogleFonts.config.allowRuntimeFetching = false);
+  setUpAll(loadCairoFont);
 
   testWidgets('Welcome → grade selection → home flow', (tester) async {
-    // في الاختبارات لا يتوفر خط Cairo فيُستخدم خط بديل عريض (Ahem)،
-    // فنتجاهل أخطاء تجاوز العرض الناتجة عنه فقط.
-    final originalOnError = FlutterError.onError;
-    FlutterError.onError = (details) {
-      if (details.exceptionAsString().contains('overflowed')) return;
-      originalOnError?.call(details);
-    };
-    addTearDown(() => FlutterError.onError = originalOnError);
-
     await tester.binding.setSurfaceSize(const Size(390, 1200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    await tester.pumpWidget(const RizmaApp());
+    await tester.pumpWidget(const ProviderScope(child: RizmaApp()));
     await tester.pumpAndSettle();
 
-    expect(find.text('ابدأ'), findsOneWidget);
-    await tester.tap(find.text('ابدأ'));
+    expect(find.text(ArStrings.welcomeStart), findsOneWidget);
+    await tester.tap(find.text(ArStrings.welcomeStart));
     await tester.pumpAndSettle();
 
-    expect(find.text('اختر صفّك'), findsOneWidget);
+    expect(find.text(ArStrings.gradeTitle), findsOneWidget);
 
     await tester.enterText(find.byType(TextField), 'أنس');
     await tester.tap(find.text('5'));
     await tester.pumpAndSettle();
 
-    expect(find.text('متابعة · الصف 5'), findsOneWidget);
-    await tester.tap(find.text('متابعة · الصف 5'));
+    final continueLabel = ArStrings.continueWithGrade(5);
+    expect(find.text(continueLabel), findsOneWidget);
+    await tester.tap(find.text(continueLabel));
     await tester.pumpAndSettle();
 
-    expect(find.text('مرحبًا، أنس'), findsOneWidget);
-    expect(find.text('الصف الخامس'), findsOneWidget);
+    expect(find.text(ArStrings.homeGreeting('أنس')), findsOneWidget);
+    expect(find.text(ArStrings.gradeName(5)), findsOneWidget);
   });
 }

@@ -1,0 +1,206 @@
+{
+  "grade": 5,
+  "subjects": [
+    {
+      "id": "math",
+      "title": "الرياضيات",
+      "icon": "calc",
+      "color": "teal",
+      "order": 1,
+      "units": [
+        {
+          "id": "math.u1",
+          "title": "الأعداد",
+          "order": 1,
+          "lessons": [
+            {
+              "id": "math.u1.l1",
+              "title": "الأعداد",
+              "estimatedMinutes": 15,
+              "order": 1,
+              "concepts": [
+                { "id": "math.u1.l1.c1", "title": "قراءة الأعداد الكبيرة وكتابتها" },
+                { "id": "math.u1.l1.c2", "title": "القيمة المنزلية" }
+              ]
+            },
+            {
+              "id": "math.u1.l2",
+              "title": "مقارنة الأعداد وترتيبها",
+              "estimatedMinutes": 12,
+              "order": 2,
+              "concepts": [
+                { "id": "math.u1.l2.c1", "title": "مقارنة عددين" },
+                { "id": "math.u1.l2.c2", "title": "ترتيب الأعداد" }
+              ]
+            },
+            {
+              "id": "math.u1.l3",
+              "title": "الجمع والطرح",
+              "estimatedMinutes": 18,
+              "order": 3,
+              "concepts": [
+                { "id": "math.u1.l3.c1", "title": "الجمع مع إعادة التجميع" },
+                { "id": "math.u1.l3.c2", "title": "الطرح مع الاستلاف" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "math.u2",
+          "title": "الكسور",
+          "order": 2,
+          "lessons": [
+            {
+              "id": "math.u2.l1",
+              "title": "مفهوم الكسر",
+              "estimatedMinutes": 14,
+              "order": 1,
+              "concepts": [
+                { "id": "math.u2.l1.c1", "title": "البسط والمقام" }
+              ]
+            },
+            {
+              "id": "math.u2.l2",
+              "title": "الكسور المتكافئة",
+              "estimatedMinutes": 16,
+              "order": 2,
+              "concepts": [
+                { "id": "math.u2.l2.c1", "title": "إيجاد كسر مكافئ" },
+                { "id": "math.u2.l2.c2", "title": "تبسيط الكسور" }
+              ]
+            },
+            {
+              "id": "math.u2.l3",
+              "title": "مقارنة الكسور",
+              "estimatedMinutes": 15,
+              "order": 3,
+              "concepts": [
+                { "id": "math.u2.l3.c1", "title": "مقارنة كسور بمقامات مختلفة" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arabic",
+      "title": "اللغة العربية",
+      "icon": "book",
+      "color": "coral",
+      "order": 2,
+      "units": [
+        {
+          "id": "arabic.u1",
+          "title": "القراءة والفهم",
+          "order": 1,
+          "lessons": [
+            {
+              "id": "arabic.u1.l1",
+              "title": "قراءة نص قصير",
+              "estimatedMinutes": 12,
+              "order": 1,
+              "concepts": [
+                { "id": "arabic.u1.l1.c1", "title": "قراءة نص بطلاقة" }
+              ]
+            },
+            {
+              "id": "arabic.u1.l2",
+              "title": "الفكرة الرئيسية",
+              "estimatedMinutes": 14,
+              "order": 2,
+              "concepts": [
+                { "id": "arabic.u1.l2.c1", "title": "استخراج الفكرة الرئيسية" },
+                { "id": "arabic.u1.l2.c2", "title": "الأفكار الفرعية" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "arabic.u2",
+          "title": "قواعد اللغة",
+          "order": 2,
+          "lessons": [
+            {
+              "id": "arabic.u2.l1",
+              "title": "الاسم والفعل والحرف",
+              "estimatedMinutes": 15,
+              "order": 1,
+              "concepts": [
+                { "id": "arabic.u2.l1.c1", "title": "أقسام الكلام" }
+              ]
+            },
+            {
+              "id": "arabic.u2.l2",
+              "title": "الجملة الاسمية",
+              "estimatedMinutes": 15,
+              "order": 2,
+              "concepts": [
+                { "id": "arabic.u2.l2.c1", "title": "المبتدأ والخبر" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "english",
+      "title": "اللغة الإنجليزية",
+      "icon": "chat",
+      "color": "purple",
+      "order": 3,
+      "units": [
+        {
+          "id": "english.u1",
+          "title": "My Family",
+          "order": 1,
+          "lessons": [
+            {
+              "id": "english.u1.l1",
+              "title": "Greetings",
+              "estimatedMinutes": 10,
+              "order": 1,
+              "concepts": [
+                { "id": "english.u1.l1.c1", "title": "Hello and goodbye" }
+              ]
+            },
+            {
+              "id": "english.u1.l2",
+              "title": "Family Members",
+              "estimatedMinutes": 12,
+              "order": 2,
+              "concepts": [
+                { "id": "english.u1.l2.c1", "title": "Family vocabulary" },
+                { "id": "english.u1.l2.c2", "title": "This is my..." }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "english.u2",
+          "title": "My School",
+          "order": 2,
+          "lessons": [
+            {
+              "id": "english.u2.l1",
+              "title": "Classroom Objects",
+              "estimatedMinutes": 12,
+              "order": 1,
+              "concepts": [
+                { "id": "english.u2.l1.c1", "title": "School vocabulary" }
+              ]
+            },
+            {
+              "id": "english.u2.l2",
+              "title": "Days of the Week",
+              "estimatedMinutes": 10,
+              "order": 2,
+              "concepts": [
+                { "id": "english.u2.l2.c1", "title": "Days and routines" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

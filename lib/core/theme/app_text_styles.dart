@@ -1,18 +1,20 @@
 import 'package:flutter/painting.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
 /// أنماط النص كما في Figma — كلها بخط Cairo.
 /// الوزن: SemiBold=600، Bold=700، ExtraBold=800.
 abstract final class AppTextStyles {
+  static const fontFamily = 'Cairo';
+
   static TextStyle _cairo(
     double size,
     FontWeight weight,
     double height,
     Color color,
   ) {
-    return GoogleFonts.cairo(
+    return TextStyle(
+      fontFamily: fontFamily,
       fontSize: size,
       fontWeight: weight,
       height: height,

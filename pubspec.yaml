@@ -1,4 +1,4 @@
-name: rizma
+﻿name: rizma
 description: "Rizma project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -35,9 +35,16 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.3.0
-  google_fonts: ^8.2.1
   flutter_localizations:
     sdk: flutter
+  flutter_riverpod: ^2.6.1
+  go_router: ^17.5.0
+  drift: '>=2.31.0 <2.32.0'
+  drift_flutter: '>=0.2.0 <0.3.0'
+  path_provider: ^2.1.6
+  crypto: ^3.0.7
+  uuid: ^4.6.0
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +56,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  drift_dev: '>=2.31.0 <2.32.0'
+  build_runner: ^2.4.13
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -64,6 +73,19 @@ flutter:
   assets:
     - assets/images/brand/
     - assets/icons/
+    - assets/content/
+
+  fonts:
+    - family: Cairo
+      fonts:
+        - asset: assets/fonts/Cairo-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Cairo-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Cairo-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Cairo-ExtraBold.ttf
+          weight: 800
 
   # To add assets to your application, add an assets section, like this:
   # assets:

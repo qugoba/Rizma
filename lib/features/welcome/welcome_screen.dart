@@ -1,23 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../app/routes.dart';
 import '../../core/constants/app_assets.dart';
+import '../../core/strings/ar.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/icon_tile.dart';
 import '../../core/widgets/primary_button.dart';
-import '../grade_selection/grade_selection_screen.dart';
 
 /// الشاشة 01 — مرحبًا
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
-
-  void _start(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const GradeSelectionScreen()),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,26 +37,26 @@ class WelcomeScreen extends StatelessWidget {
                     const _ValuePoint(
                       asset: AppAssets.bookTile,
                       tileColor: AppColors.tealTint,
-                      title: 'رزمتك… بطريقة أوضح',
-                      subtitle: 'شرح، ملخص، فيديو وتدريب لكل درس.',
+                      title: ArStrings.welcomeValue1Title,
+                      subtitle: ArStrings.welcomeValue1Subtitle,
                     ),
                     const _ValuePoint(
                       asset: AppAssets.cloudOff,
                       tileColor: AppColors.blueTint,
-                      title: 'تعلّم دون إنترنت',
-                      subtitle: 'نزّل الدرس مرة وتعلّم في أي وقت.',
+                      title: ArStrings.welcomeValue2Title,
+                      subtitle: ArStrings.welcomeValue2Subtitle,
                     ),
                     const _ValuePoint(
                       asset: AppAssets.target,
                       tileColor: AppColors.amberTint,
-                      title: 'اعرف أين تحتاج مراجعة',
-                      subtitle: 'خطة قصيرة مبنية على نتيجتك.',
+                      title: ArStrings.welcomeValue3Title,
+                      subtitle: ArStrings.welcomeValue3Subtitle,
                     ),
                     const _PageDots(count: 3, current: 0),
                     PrimaryButton(
-                      label: 'ابدأ',
+                      label: ArStrings.welcomeStart,
                       iconAsset: AppAssets.fwdOnboarding,
-                      onPressed: () => _start(context),
+                      onPressed: () => context.push(AppRoutes.createProfile),
                     ),
                     TextButton(
                       onPressed: () {},
@@ -68,7 +64,7 @@ class WelcomeScreen extends StatelessWidget {
                         foregroundColor: AppColors.teal,
                         textStyle: AppTextStyles.body15,
                       ),
-                      child: const Text('لديّ ملف طالب على هذا الجهاز'),
+                      child: const Text(ArStrings.welcomeHaveProfile),
                     ),
                   ],
                 ),
@@ -105,7 +101,7 @@ class _Hero extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+                padding: const EdgeInsetsDirectional.fromSTEB(24, 32, 24, 0),
                 child: Column(
                   spacing: 14,
                   children: [
@@ -123,11 +119,14 @@ class _Hero extends StatelessWidget {
                           width: 40,
                           height: 40,
                         ),
-                        Text('رِزمة', style: AppTextStyles.wordmark40),
+                        Text(
+                          ArStrings.appName,
+                          style: AppTextStyles.wordmark40,
+                        ),
                       ],
                     ),
                     Text(
-                      'من المحتوى الذي يُقرأ… إلى التعلم الذي يُمارس.',
+                      ArStrings.welcomeTagline,
                       textAlign: TextAlign.center,
                       style: AppTextStyles.tagline18,
                     ),

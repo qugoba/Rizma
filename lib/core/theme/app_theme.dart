@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
+import 'app_text_styles.dart';
 
 abstract final class AppTheme {
   static ThemeData get light {
@@ -20,7 +20,7 @@ abstract final class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.ground,
-      textTheme: GoogleFonts.cairoTextTheme(),
+      fontFamily: AppTextStyles.fontFamily,
     );
   }
 }
