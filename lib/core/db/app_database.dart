@@ -31,7 +31,17 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   /// قاعدة البيانات الحقيقية على الجهاز (SQLite).
-  AppDatabase.onDevice() : super(driftDatabase(name: 'rizma'));
+  AppDatabase.onDevice()
+    : super(
+        driftDatabase(
+          name: 'rizma',
+          // الويب فقط (للتطوير على Chrome): يحتاج الملفين في مجلد web/.
+          web: DriftWebOptions(
+            sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+            driftWorker: Uri.parse('drift_worker.js'),
+          ),
+        ),
+      );
 
   @override
   int get schemaVersion => 1;

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,9 +85,17 @@ class _CreateProfileStep2ScreenState
       ref.read(createProfileDraftProvider.notifier).clear();
       await ref.read(activeProfileIdProvider.notifier).reload();
       if (mounted) context.go(AppRoutes.home);
-    } catch (_) {
+    } catch (error, stackTrace) {
+      debugPrint('إنشاء الملف فشل: $error\n$stackTrace');
       messenger.showSnackBar(
-        const SnackBar(content: Text(ArStrings.setupCreateFailed)),
+        SnackBar(
+          content: Text(
+            // في وضع التطوير نُظهر سبب الخطأ الحقيقي لتسهيل التشخيص.
+            kDebugMode
+                ? '${ArStrings.setupCreateFailed}\n$error'
+                : ArStrings.setupCreateFailed,
+          ),
+        ),
       );
       if (mounted) setState(() => _submitting = false);
     }

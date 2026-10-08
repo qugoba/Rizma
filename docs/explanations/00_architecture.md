@@ -83,3 +83,16 @@ Riverpod يربط الطبقات. مثال: `databaseProvider → profileReposit
 | ملفات `*.g.dart` داخل Git | حتى يعمل المشروع بعد النسخ دون تشغيل `build_runner`. تُولَّد بـ `dart run build_runner build`. |
 | `minSdk = 24` | هو الحد الأدنى الذي يدعمه Flutter 3.38 رسميًا. |
 | `google_fonts` محذوف | يجلب الخط من الإنترنت وهذا يخالف مبدأ «دون إنترنت أولًا». |
+
+## التشغيل على Chrome (للتطوير)
+الهدف النهائي هاتف أندرويد، لكن يمكن التجريب على Chrome:
+
+```
+flutter run -d chrome --web-port=5000
+```
+
+- ثبّت المنفذ (`--web-port`)؛ بياناتك تُحفظ في IndexedDB **لكل منفذ**، فمنفذ عشوائي جديد في كل تشغيل يعني قاعدة فارغة.
+- Drift على الويب يحتاج ملفين في مجلد `web/`: `sqlite3.wasm` و`drift_worker.js`، وهما منسوخان من إصدارات Drift الرسمية. **يجب أن يطابقا إصدارات الحزم** في `pubspec.lock` (الآن: `sqlite3` 2.9.4 و`drift` 2.31.0). عند ترقية أي حزمة نزّل الملفين من الإصدار المطابق:
+  - `https://github.com/simolus3/sqlite3.dart/releases` (ملف `sqlite3.wasm`)
+  - `https://github.com/simolus3/drift/releases` (ملف `drift_worker.js`)
+- بدون هذين الملفين أو بدون الإعداد `web:` في `AppDatabase.onDevice()` يفشل إنشاء الملف برسالة «تعذّر إنشاء الملف». في وضع debug يظهر السبب الحقيقي تحت الرسالة وفي سجل المتصفح.
