@@ -56,7 +56,7 @@ class WelcomeScreen extends StatelessWidget {
                     PrimaryButton(
                       label: ArStrings.welcomeStart,
                       iconAsset: AppAssets.fwdOnboarding,
-                      onPressed: () => context.push(AppRoutes.createProfile),
+                      onPressed: () => context.push(AppRoutes.createStep1),
                     ),
                     TextButton(
                       onPressed: () {},

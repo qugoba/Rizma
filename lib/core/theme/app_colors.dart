@@ -9,6 +9,7 @@ abstract final class AppColors {
   static const mute = Color(0xFFE6EAE5);
   static const line = Color(0xFFE1E6E2);
   static const disabled = Color(0xFFC9D2CD);
+  static const placeholder = Color(0xFF9AA7A1);
 
   // النصوص
   static const ink = Color(0xFF0F2A2E);

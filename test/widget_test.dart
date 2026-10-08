@@ -1,37 +1,198 @@
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rizma/app/rizma_app.dart';
+import 'package:rizma/core/db/app_database.dart';
+import 'package:rizma/core/db/database_provider.dart';
 import 'package:rizma/core/strings/ar.dart';
+import 'package:rizma/core/widgets/primary_button.dart';
 
 import 'helpers/load_fonts.dart';
 
 void main() {
   setUpAll(loadCairoFont);
 
-  testWidgets('Welcome → grade selection → home flow', (tester) async {
+  /// يشغّل التطبيق على قاعدة في الذاكرة، ثم ينظّف خارج الزمن الوهمي:
+  /// مؤقّتات Drift لا تنتهي إلا بإزالة الشجرة وإغلاق القاعدة.
+  Future<void> scenario(
+    WidgetTester tester,
+    Future<void> Function(AppDatabase db) body,
+  ) async {
+    final db = AppDatabase(NativeDatabase.memory());
     await tester.binding.setSurfaceSize(const Size(390, 1200));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-
-    await tester.pumpWidget(const ProviderScope(child: RizmaApp()));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const RizmaApp(),
+      ),
+    );
     await tester.pumpAndSettle();
+    try {
+      await body(db);
+    } finally {
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(Duration.zero);
+      await tester.runAsync(db.close);
+      await tester.binding.setSurfaceSize(null);
+    }
+  }
 
-    expect(find.text(ArStrings.welcomeStart), findsOneWidget);
+  Future<void> fillStep1(WidgetTester tester, String name, int grade) async {
     await tester.tap(find.text(ArStrings.welcomeStart));
     await tester.pumpAndSettle();
-
     expect(find.text(ArStrings.gradeTitle), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField), 'أنس');
-    await tester.tap(find.text('5'));
+    await tester.enterText(find.byType(TextField), name);
+    await tester.tap(find.text('$grade'));
     await tester.pumpAndSettle();
 
-    final continueLabel = ArStrings.continueWithGrade(5);
-    expect(find.text(continueLabel), findsOneWidget);
-    await tester.tap(find.text(continueLabel));
+    final label = ArStrings.continueWithGrade(grade);
+    expect(find.text(label), findsOneWidget);
+    await tester.tap(find.text(label));
     await tester.pumpAndSettle();
+  }
 
-    expect(find.text(ArStrings.homeGreeting('أنس')), findsOneWidget);
-    expect(find.text(ArStrings.gradeName(5)), findsOneWidget);
-  });
+  Future<void> enterPin(WidgetTester tester, String digits) async {
+    for (final d in digits.split('')) {
+      await tester.tap(find.text(d));
+      await tester.pump();
+    }
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+  }
+
+  Future<List<Profile>> profilesOf(WidgetTester tester, AppDatabase db) async {
+    return (await tester.runAsync(() => db.profilesDao.getAll()))!;
+  }
+
+  testWidgets(
+    '01 → 02 → 26 → الرئيسية وتُحفظ بيانات الملف',
+    (tester) => scenario(tester, (db) async {
+      await fillStep1(tester, 'أنس', 5);
+
+      expect(find.text(ArStrings.setupTitle), findsOneWidget);
+      expect(
+        find.text(ArStrings.setupPreview('أنس', 5)),
+        findsOneWidget,
+        reason: 'المعاينة تعرض الاسم والصف من الخطوة 1',
+      );
+
+      await tester.tap(find.text(ArStrings.setupStart));
+      await tester.pumpAndSettle();
+
+      expect(find.text(ArStrings.homeGreeting('أنس')), findsOneWidget);
+      expect(find.text(ArStrings.gradeName(5)), findsOneWidget);
+
+      final profiles = await profilesOf(tester, db);
+      expect(profiles, hasLength(1));
+      final p = profiles.single;
+      expect(p.name, 'أنس');
+      expect(p.grade, 5);
+      expect(p.color, ProfileColor.teal);
+      expect(p.pinHash, isNull);
+      expect(p.classCode, isNull);
+      expect(p.studentCode, startsWith('RZ-'));
+    }),
+  );
+
+  testWidgets(
+    'اختيار لون الشخصية يُحفظ مع الملف',
+    (tester) => scenario(tester, (db) async {
+      await fillStep1(tester, 'ليان', 2);
+
+      await tester.tap(
+        find.bySemanticsLabel(ArStrings.colorName(ProfileColor.coral)),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(ArStrings.setupStart));
+      await tester.pumpAndSettle();
+
+      expect((await profilesOf(tester, db)).single.color, ProfileColor.coral);
+    }),
+  );
+
+  testWidgets(
+    'رمز صف غير صحيح يمنع الإنشاء ويعرض رسالة',
+    (tester) => scenario(tester, (db) async {
+      await fillStep1(tester, 'أنس', 5);
+
+      await tester.enterText(find.byType(TextField), 'GZ--');
+      await tester.tap(find.text(ArStrings.setupStart));
+      await tester.pumpAndSettle();
+
+      expect(find.text(ArStrings.setupClassInvalid), findsOneWidget);
+      expect(await profilesOf(tester, db), isEmpty);
+    }),
+  );
+
+  testWidgets(
+    'رمز صف صحيح يُخزَّن موحّدًا',
+    (tester) => scenario(tester, (db) async {
+      await fillStep1(tester, 'أنس', 5);
+
+      await tester.enterText(find.byType(TextField), 'gz-5a');
+      await tester.tap(find.text(ArStrings.setupStart));
+      await tester.pumpAndSettle();
+
+      expect((await profilesOf(tester, db)).single.classCode, 'GZ-5A');
+    }),
+  );
+
+  testWidgets(
+    'الرمز السري: إدخال وتأكيد ثم يُخزَّن مجزّأً',
+    (tester) => scenario(tester, (db) async {
+      await fillStep1(tester, 'أنس', 5);
+
+      await tester.tap(find.bySemanticsLabel(ArStrings.setupPinSwitch));
+      await tester.pumpAndSettle();
+      expect(find.text(ArStrings.pinSetupTitle), findsOneWidget);
+
+      await enterPin(tester, '1234');
+      expect(find.text(ArStrings.pinConfirmTitle), findsOneWidget);
+      await enterPin(tester, '1234');
+      expect(find.text(ArStrings.pinConfirmTitle), findsNothing);
+
+      await tester.tap(find.byType(PrimaryButton));
+      await tester.pumpAndSettle();
+
+      final p = (await profilesOf(tester, db)).single;
+      expect(p.pinHash, isNotNull);
+      expect(p.pinHash, isNot(contains('1234')));
+    }),
+  );
+
+  testWidgets(
+    'رمز سري غير متطابق يعيد الإدخال ولا يُنشئ رمزًا',
+    (tester) => scenario(tester, (db) async {
+      await fillStep1(tester, 'أنس', 5);
+
+      await tester.tap(find.bySemanticsLabel(ArStrings.setupPinSwitch));
+      await tester.pumpAndSettle();
+
+      await enterPin(tester, '1234');
+      await enterPin(tester, '4321');
+      expect(find.text(ArStrings.pinMismatch), findsOneWidget);
+      expect(find.text(ArStrings.pinSetupTitle), findsOneWidget);
+    }),
+  );
+
+  testWidgets(
+    'زر المتابعة في الخطوة 1 معطّل حتى يكتمل الاسم والصف',
+    (tester) => scenario(tester, (db) async {
+      await tester.tap(find.text(ArStrings.welcomeStart));
+      await tester.pumpAndSettle();
+
+      PrimaryButton button() => tester.widget(find.byType(PrimaryButton));
+      expect(button().onPressed, isNull);
+
+      await tester.enterText(find.byType(TextField), 'أنس');
+      await tester.pump();
+      expect(button().onPressed, isNull);
+
+      await tester.tap(find.text('5'));
+      await tester.pump();
+      expect(button().onPressed, isNotNull);
+    }),
+  );
 }

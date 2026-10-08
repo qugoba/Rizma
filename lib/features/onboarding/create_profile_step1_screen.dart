@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/routes.dart';
 import '../../core/constants/app_assets.dart';
-import '../../core/models/student_profile.dart';
 import '../../core/strings/ar.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/widgets/mascot.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/screen_top_bar.dart';
+import 'create_profile_draft.dart';
 
 class _GradeGroup {
   const _GradeGroup({
@@ -40,21 +42,28 @@ const _groups = [
   ),
 ];
 
-/// الشاشة 02 — اختيار الصف
-class GradeSelectionScreen extends StatefulWidget {
-  const GradeSelectionScreen({super.key});
+/// الشاشة 02 — إنشاء الملف، الخطوة 1 من 2: الاسم والصف.
+class CreateProfileStep1Screen extends ConsumerStatefulWidget {
+  const CreateProfileStep1Screen({super.key});
 
   @override
-  State<GradeSelectionScreen> createState() => _GradeSelectionScreenState();
+  ConsumerState<CreateProfileStep1Screen> createState() =>
+      _CreateProfileStep1ScreenState();
 }
 
-class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
+class _CreateProfileStep1ScreenState
+    extends ConsumerState<CreateProfileStep1Screen> {
   final _nameController = TextEditingController();
   int? _selectedGrade;
 
   @override
   void initState() {
     super.initState();
+    final draft = ref.read(createProfileDraftProvider);
+    if (draft != null) {
+      _nameController.text = draft.name;
+      _selectedGrade = draft.grade;
+    }
     _nameController.addListener(() => setState(() {}));
   }
 
@@ -68,11 +77,10 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
       _selectedGrade != null && _nameController.text.trim().isNotEmpty;
 
   void _continue() {
-    final profile = StudentProfile(
-      name: _nameController.text.trim(),
-      grade: _selectedGrade!,
-    );
-    context.go(AppRoutes.home, extra: profile);
+    ref
+        .read(createProfileDraftProvider.notifier)
+        .save(name: _nameController.text.trim(), grade: _selectedGrade!);
+    context.push(AppRoutes.createStep2);
   }
 
   @override
@@ -83,10 +91,13 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _TopBar(
+              ScreenTopBar(
+                subtitle: ArStrings.gradeStep,
+                title: ArStrings.gradeTitle,
                 onBack: () => context.canPop()
                     ? context.pop()
                     : context.go(AppRoutes.welcome),
+                end: const Mascot(size: 56),
               ),
               Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(20, 12, 20, 24),
@@ -119,58 +130,6 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _TopBar extends StatelessWidget {
-  const _TopBar({required this.onBack});
-
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 4),
-      child: Row(
-        spacing: 12,
-        children: [
-          Semantics(
-            button: true,
-            label: ArStrings.back,
-            excludeSemantics: true,
-            child: Material(
-              color: AppColors.mute,
-              borderRadius: BorderRadius.circular(14),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: onBack,
-                child: SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Center(
-                    child: SvgPicture.asset(
-                      AppAssets.back,
-                      width: 22,
-                      height: 22,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(ArStrings.gradeStep, style: AppTextStyles.caption13),
-                Text(ArStrings.gradeTitle, style: AppTextStyles.heading22),
-              ],
-            ),
-          ),
-          SvgPicture.asset(AppAssets.mascot56, width: 56, height: 56),
-        ],
       ),
     );
   }

@@ -1,10 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/models/student_profile.dart';
-import '../features/grade_selection/grade_selection_screen.dart';
 import '../features/home/home_screen.dart';
-import '../features/welcome/welcome_screen.dart';
+import '../features/onboarding/create_profile_draft.dart';
+import '../features/onboarding/create_profile_step1_screen.dart';
+import '../features/onboarding/create_profile_step2_screen.dart';
+import '../features/onboarding/welcome_screen.dart';
 import 'routes.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -16,15 +17,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const WelcomeScreen(),
       ),
       GoRoute(
-        path: AppRoutes.createProfile,
-        builder: (context, state) => const GradeSelectionScreen(),
+        path: AppRoutes.createStep1,
+        builder: (context, state) => const CreateProfileStep1Screen(),
+      ),
+      GoRoute(
+        path: AppRoutes.createStep2,
+        // بلا بيانات الخطوة 1 لا معنى للخطوة 2 (مثلًا بعد إعادة فتح التطبيق).
+        redirect: (context, state) =>
+            ref.read(createProfileDraftProvider) == null
+            ? AppRoutes.createStep1
+            : null,
+        builder: (context, state) => const CreateProfileStep2Screen(),
       ),
       GoRoute(
         path: AppRoutes.home,
-        redirect: (context, state) =>
-            state.extra is StudentProfile ? null : AppRoutes.welcome,
-        builder: (context, state) =>
-            HomeScreen(profile: state.extra! as StudentProfile),
+        builder: (context, state) => const HomeScreen(),
       ),
     ],
   );

@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/constants/app_assets.dart';
-import '../../core/models/student_profile.dart';
+import '../../core/db/app_database.dart';
 import '../../core/strings/ar.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/theme/profile_palette.dart';
 import '../../core/widgets/bottom_nav.dart';
+import '../../core/widgets/mascot.dart';
+import '../profiles/active_profile_provider.dart';
 
 /// الشاشة 03 — الرئيسية (مؤقتًا: التحية فقط حتى تُبنى الحالة من البيانات).
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.profile});
-
-  final StudentProfile profile;
+class HomeScreen extends ConsumerWidget {
+  const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(activeProfileProvider).value;
+
     return Scaffold(
       body: SafeArea(
         bottom: false,
         child: Align(
           alignment: AlignmentDirectional.topStart,
-          child: _Greeting(profile: profile),
+          child: profile == null ? null : _Greeting(profile: profile),
         ),
       ),
       bottomNavigationBar: BottomNav(
@@ -35,7 +37,7 @@ class HomeScreen extends StatelessWidget {
 class _Greeting extends StatelessWidget {
   const _Greeting({required this.profile});
 
-  final StudentProfile profile;
+  final Profile profile;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,10 @@ class _Greeting extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(profile.gradeLabel, style: AppTextStyles.label14),
+                Text(
+                  ArStrings.gradeName(profile.grade),
+                  style: AppTextStyles.label14,
+                ),
                 Text(
                   ArStrings.homeGreeting(profile.name),
                   style: AppTextStyles.title26,
@@ -63,12 +68,12 @@ class _Greeting extends StatelessWidget {
           Container(
             width: 52,
             height: 52,
-            decoration: const BoxDecoration(
-              color: AppColors.tealTint,
+            decoration: BoxDecoration(
+              color: profile.color.avatarBackground,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: SvgPicture.asset(AppAssets.mascot40, width: 40, height: 40),
+            child: Mascot(size: 40, color: profile.color),
           ),
         ],
       ),
