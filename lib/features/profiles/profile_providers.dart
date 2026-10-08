@@ -15,3 +15,13 @@ final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
 final profilesProvider = StreamProvider<List<Profile>>((ref) {
   return ref.watch(profileRepositoryProvider).watchAll();
 });
+
+/// مجموع نجوم كل ملف (معرّف الملف ← عدد النجوم). الملف بلا محاولات غير موجود.
+final starsByProfileProvider = StreamProvider<Map<String, int>>((ref) {
+  return ref.watch(appDatabaseProvider).activityDao.watchStarsByProfile();
+});
+
+/// ملف واحد بمعرّفه (يتحدّث تلقائيًا). `null` إن لم يعد موجودًا.
+final profileByIdProvider = StreamProvider.autoDispose.family<Profile?, String>(
+  (ref, id) => ref.watch(profileRepositoryProvider).watchById(id),
+);

@@ -73,10 +73,91 @@ abstract final class ArStrings {
   static String pinDotsSemantics(int filled, int length) =>
       'أُدخل $filled من $length أرقام';
 
-  // الرئيسية
+  // شاشة «من يتعلّم الآن؟» (25)
+  static const pickerTitle = 'من يتعلّم الآن؟';
+  static const pickerSubtitle = 'اختر ملفك لتكمل من حيث توقفت.';
+  static const pickerNewTitle = 'طالب جديد';
+  static const pickerNewSubtitle = 'أضف ملفًا لأخ أو أخت';
+  static const pickerRestoreTitle = 'لديك رمز طالب؟';
+  static const pickerRestoreSubtitle = 'استعد تقدّمك على هذا الجهاز';
+  static const pickerPrivacy =
+      'الملفات محفوظة على هذا الجهاز · لا نطلب بريدًا ولا رقم هاتف';
+  static const restoreNeedsInternet =
+      'الاستعادة تحتاج اتصالًا بالإنترنت وستتوفّر قريبًا.';
+  static const profileProtected = 'محمي برمز سري';
+
+  static String profileSemantics(String name, String grade, bool locked) =>
+      locked ? '$name، $grade، $profileProtected' : '$name، $grade';
+
+  /// «نجمة واحدة / نجمتان / 3 نجوم … 10 نجوم / 11 نجمة».
+  static String stars(int n) {
+    if (n == 0) return '0 نجوم';
+    if (n == 1) return 'نجمة واحدة';
+    if (n == 2) return 'نجمتان';
+    if (n >= 3 && n <= 10) return '$n نجوم';
+    return '$n نجمة';
+  }
+
+  /// «يوم واحد / يومان / 3 أيام … 10 أيام / 11 يومًا» + «متتالية».
+  static String streakDays(int n) {
+    if (n == 1) return 'يوم واحد متتالٍ';
+    if (n == 2) return 'يومان متتاليان';
+    if (n >= 3 && n <= 10) return '$n أيام متتالية';
+    return '$n يومًا متتاليًا';
+  }
+
+  // شاشة الرمز السري (27)
+  static const pinEnterTitle = 'أدخل رمزك السري';
+  static const pinForgot = 'نسيت الرمز؟ استخدم رمز الطالب لإعادة تعيينه';
+  static const pinWrong = 'الرمز غير صحيح، حاول مرة أخرى.';
+
+  static String pinHello(String name) => 'مرحبًا $name';
+  static String pinLocked(int seconds) =>
+      'تجاوزت عدد المحاولات. حاول بعد $seconds ثانية.';
+
+  // استعادة الوصول بدل الرمز المنسي
+  static const forgotTitle = 'استعادة الوصول';
+  static const forgotCodeLabel = 'أدخل رمز الطالب';
+  static const forgotCodeHint = 'RZ-XXXX';
+  static const forgotCodeWrong = 'رمز الطالب غير صحيح.';
+  static const forgotVerify = 'تحقّق';
+  static const forgotChoose = 'تم التحقق. ماذا تريد أن تفعل؟';
+  static const forgotSetNew = 'تعيين رمز سري جديد';
+  static const forgotRemove = 'إلغاء الرمز السري';
+
+  // الرئيسية (03) وأول يوم (28)
   static const homeAskToday = 'ماذا تريد أن تتعلم اليوم؟';
+  static const homeFirstDaySubtitle = 'يومك الأول في رِزمة. لنبدأ معًا!';
+  static const homeStartLesson = 'ابدأ الدرس';
+  static const homeContinue = 'متابعة التعلم';
+  static const homeFirstSteps = 'خطواتك الأولى';
+  static const homeStepDownload = 'نزّل أول درس';
+  static const homeStepDownloadHint = 'لتتعلّم حتى دون إنترنت';
+  static const homeStepPractice = 'أكمل أول تدريب';
+  static const homeStepPracticeHint = 'واربح نجومك الأولى';
+  static const homeStepQuiz = 'جرّب أول اختبار';
+  static const homeStepQuizHint = 'لتعرف ما تحتاج مراجعته';
+  static const homeReviewPlaceholder =
+      'ما يحتاج إلى مراجعة سيظهر هنا بعد أول اختبار.';
+  static const homeNeedsReview = 'يحتاج إلى مراجعة';
+  static const homeReviewButton = 'راجِع';
+  static const homeMySubjects = 'موادي';
+  static const homeShowAll = 'عرض الكل';
+  static const homeNotStarted = 'لم تبدأ';
+  static const homeLoadFailed = 'تعذّر تحميل الرئيسية.';
+  static const homeLessonSoon = 'مشغّل الدروس قيد الإعداد وسيتوفّر قريبًا.';
 
   static String homeGreeting(String name) => 'مرحبًا، $name';
+  static String homeFirstDayGreeting(String name) => 'أهلًا، $name';
+  static String homeStartFirstLesson(String title) => 'ابدأ أول درس: $title';
+  static String homeLessonMeta(int minutes) =>
+      'نحو $minutes دقيقة · شرح وتدريب قصير';
+  static String homeLessonTitle(int order, String title) =>
+      'الدرس $order: $title';
+  static String homeSubjectUnit(String subject, String unit) =>
+      '$subject · $unit';
+  static String homeFirstStepsCount(int done) => '$done من 3';
+  static String homeMastery(int percent) => 'الإتقان $percent%';
 
   // الشريط السفلي
   static const navHome = 'الرئيسية';

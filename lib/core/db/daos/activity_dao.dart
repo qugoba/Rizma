@@ -92,6 +92,33 @@ class ActivityDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
+  /// مجموع النجوم لكل ملف (يظهر في شاشة «من يتعلّم الآن؟»).
+  Stream<Map<String, int>> watchStarsByProfile() {
+    final total = attempts.starsEarned.sum();
+    final query = selectOnly(attempts)
+      ..addColumns([attempts.profileId, total])
+      ..groupBy([attempts.profileId]);
+    return query
+        .map(
+          (row) =>
+              MapEntry(row.read(attempts.profileId)!, row.read(total) ?? 0),
+        )
+        .watch()
+        .map(Map.fromEntries);
+  }
+
+  /// يمسح كل نشاط ملف واحد (تقدّم، محاولات، إتقان) دون حذف الملف نفسه.
+  /// للاستخدام في أدوات التطوير فقط.
+  Future<void> clearActivity(String profileId) async {
+    await (delete(
+      lessonProgress,
+    )..where((r) => r.profileId.equals(profileId))).go();
+    await (delete(attempts)..where((r) => r.profileId.equals(profileId))).go();
+    await (delete(
+      conceptMastery,
+    )..where((r) => r.profileId.equals(profileId))).go();
+  }
+
   // طابور المزامنة
   Future<void> enqueueSync({
     required String entity,

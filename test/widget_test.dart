@@ -1,42 +1,15 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rizma/app/rizma_app.dart';
 import 'package:rizma/core/db/app_database.dart';
-import 'package:rizma/core/db/database_provider.dart';
 import 'package:rizma/core/strings/ar.dart';
 import 'package:rizma/core/widgets/primary_button.dart';
 
+import 'helpers/app_harness.dart';
 import 'helpers/load_fonts.dart';
 
+/// مسار إنشاء الملف: 01 ← 02 ← 26 ← الرئيسية (أول يوم).
 void main() {
   setUpAll(loadCairoFont);
-
-  /// يشغّل التطبيق على قاعدة في الذاكرة، ثم ينظّف خارج الزمن الوهمي:
-  /// مؤقّتات Drift لا تنتهي إلا بإزالة الشجرة وإغلاق القاعدة.
-  Future<void> scenario(
-    WidgetTester tester,
-    Future<void> Function(AppDatabase db) body,
-  ) async {
-    final db = AppDatabase(NativeDatabase.memory());
-    await tester.binding.setSurfaceSize(const Size(390, 1200));
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const RizmaApp(),
-      ),
-    );
-    await tester.pumpAndSettle();
-    try {
-      await body(db);
-    } finally {
-      await tester.pumpWidget(const SizedBox());
-      await tester.pump(Duration.zero);
-      await tester.runAsync(db.close);
-      await tester.binding.setSurfaceSize(null);
-    }
-  }
 
   Future<void> fillStep1(WidgetTester tester, String name, int grade) async {
     await tester.tap(find.text(ArStrings.welcomeStart));
@@ -53,35 +26,29 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> enterPin(WidgetTester tester, String digits) async {
-    for (final d in digits.split('')) {
-      await tester.tap(find.text(d));
-      await tester.pump();
-    }
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.pumpAndSettle();
-  }
-
-  Future<List<Profile>> profilesOf(WidgetTester tester, AppDatabase db) async {
-    return (await tester.runAsync(() => db.profilesDao.getAll()))!;
+  Future<List<Profile>> profilesOf(WidgetTester tester, AppDatabase db) {
+    return onDb(tester, () => db.profilesDao.getAll());
   }
 
   testWidgets(
-    '01 → 02 → 26 → الرئيسية وتُحفظ بيانات الملف',
+    'جهاز نظيف يبدأ بالترحيب',
+    (tester) => scenario(tester, (db) async {
+      expect(find.text(ArStrings.welcomeStart), findsOneWidget);
+    }),
+  );
+
+  testWidgets(
+    '01 → 02 → 26 → الرئيسية (أول يوم) وتُحفظ بيانات الملف',
     (tester) => scenario(tester, (db) async {
       await fillStep1(tester, 'أنس', 5);
 
       expect(find.text(ArStrings.setupTitle), findsOneWidget);
-      expect(
-        find.text(ArStrings.setupPreview('أنس', 5)),
-        findsOneWidget,
-        reason: 'المعاينة تعرض الاسم والصف من الخطوة 1',
-      );
+      expect(find.text(ArStrings.setupPreview('أنس', 5)), findsOneWidget);
 
       await tester.tap(find.text(ArStrings.setupStart));
       await tester.pumpAndSettle();
 
-      expect(find.text(ArStrings.homeGreeting('أنس')), findsOneWidget);
+      expect(find.text(ArStrings.homeFirstDayGreeting('أنس')), findsOneWidget);
       expect(find.text(ArStrings.gradeName(5)), findsOneWidget);
 
       final profiles = await profilesOf(tester, db);
@@ -163,7 +130,7 @@ void main() {
   );
 
   testWidgets(
-    'رمز سري غير متطابق يعيد الإدخال ولا يُنشئ رمزًا',
+    'رمز سري غير متطابق يعيد الإدخال',
     (tester) => scenario(tester, (db) async {
       await fillStep1(tester, 'أنس', 5);
 

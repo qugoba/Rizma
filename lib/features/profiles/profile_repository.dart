@@ -159,6 +159,13 @@ class ProfileRepository {
     _lockouts.remove(profileId);
   }
 
+  /// هل [studentCode] هو رمز طالب هذا الملف؟ (يوحّد الإدخال قبل المقارنة.)
+  Future<bool> matchesStudentCode(String profileId, String studentCode) async {
+    final profile = await getById(profileId);
+    if (profile == null) return false;
+    return StudentCode.normalize(studentCode) == profile.studentCode;
+  }
+
   /// «نسيت الرمز؟»: إن طابق [studentCode] رمز هذا الملف يُعيَّن [newPin]
   /// (أو يُلغى الرمز السري إن كان null) ويُرجع true.
   Future<bool> resetPinWithStudentCode(
