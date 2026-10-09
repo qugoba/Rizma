@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../core/strings/ar.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_theme.dart';
 import '../features/account/account_providers.dart';
@@ -36,7 +35,8 @@ class RizmaApp extends ConsumerWidget {
     final fontScale = ref.watch(activePrefsProvider).value?.fontSize.scale ?? 1;
 
     return MaterialApp.router(
-      title: ArStrings.appName,
+      // الاسم الذي يراه النظام (مبدّل المهام): لاتيني. الشعار العربي «رِزمة» داخل الواجهة.
+      title: 'Rizma',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       scrollBehavior: const _RizmaScrollBehavior(),

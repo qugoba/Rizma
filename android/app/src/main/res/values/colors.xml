@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- خلفية الأيقونة التكيّفية (الحبر) -->
+    <color name="ic_launcher_background">#0F2A2E</color>
+    <!-- خلفية شاشة البداية = لون خلفية التطبيق (ground) فينتقل منها دون وميض -->
+    <color name="splash_background">#F4F5F1</color>
+</resources>
