@@ -21,10 +21,12 @@ final String _catalogJson = File(
 /// مؤقّتات Drift لا تنتهي إلا بإزالة الشجرة وإغلاق القاعدة.
 ///
 /// [seed] يُنفَّذ قبل تشغيل التطبيق لتجهيز ملفات جاهزة على «الجهاز».
+/// [overrides] لاستبدال خدمات النظام (مثل المشاركة) بنسخ اختبارية.
 Future<void> scenario(
   WidgetTester tester,
   Future<void> Function(AppDatabase db) body, {
   Future<void> Function(ProfileRepository repo)? seed,
+  List<Override> overrides = const [],
 }) async {
   final db = AppDatabase(NativeDatabase.memory());
   if (seed != null) {
@@ -41,6 +43,7 @@ Future<void> scenario(
         catalogRepositoryProvider.overrideWithValue(
           CatalogRepository(loadString: (_) async => _catalogJson),
         ),
+        ...overrides,
       ],
       child: const RizmaApp(),
     ),

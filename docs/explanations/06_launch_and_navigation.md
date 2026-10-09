@@ -23,6 +23,8 @@
 | `profiles` | `/profiles` | من يتعلّم الآن؟ (25) |
 | `pinPattern` / `pin(id)` | `/pin/:id` | الرمز السري (27) |
 | `home` | `/home` | الرئيسية (03/28) |
+| `account` | `/account` | حسابي (19) — انظر `13_account_and_student_code.md` |
+| `studentCode` | `/account/code` | رمز الطالب (29) |
 
 الثوابت في ملف مستقل (`routes.dart`) حتى تستورده الشاشات دون أن تستورد الراوتر (الذي يستورد الشاشات)، فنتجنب اعتمادًا دائريًا.
 
@@ -52,7 +54,7 @@ LaunchPlan decideLaunchPlan(List<Profile> profiles) {
 ## `router.dart` — الراوتر
 `routerProvider` (مزوّد Riverpod) ينشئ `GoRouter` بـ `initialLocation: AppRoutes.launch`. نقطتان خاصتان:
 - **`/create/step2`** لها `redirect`: إن لم توجد مسودة من الخطوة 1 (`createProfileDraftProvider == null`) نعيد التوجيه إلى الخطوة 1. يحدث هذا مثلًا إن أُعيد فتح الرابط مباشرة.
-- **`/home`** لها `redirect`: إن كان `activeProfileIdProvider` تحمّل **وقيمته `null`** (لا ملف نشط) نعود إلى `/` فتقرر شاشة الإقلاع. بذلك لا تُعرض رئيسية بلا طالب.
+- **`/home` و`/account` و`/account/code`** لها نفس `redirect` (الدالة المحلية `requireActiveProfile` في `router.dart`):  إن كان `activeProfileIdProvider` تحمّل **وقيمته `null`** (لا ملف نشط) نعود إلى `/` فتقرر شاشة الإقلاع. بذلك لا تُعرض رئيسية بلا طالب.
 - **`/pin/:id`**: يُستخرج `id` من `state.pathParameters['id']` ويُمرَّر لـ `PinEntryScreen`.
 
 ## `activeProfileProvider` / `activeProfileIdProvider`

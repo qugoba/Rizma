@@ -26,6 +26,16 @@ void main() {
     });
   });
 
+  group('ArStrings.codePending', () {
+    test('صيغ الجمع العربية', () {
+      expect(ArStrings.codePending(1), 'نتيجة واحدة بانتظار الاتصال');
+      expect(ArStrings.codePending(2), 'نتيجتان بانتظار الاتصال');
+      expect(ArStrings.codePending(3), '3 نتائج بانتظار الاتصال');
+      expect(ArStrings.codePending(10), '10 نتائج بانتظار الاتصال');
+      expect(ArStrings.codePending(11), '11 نتيجة بانتظار الاتصال');
+    });
+  });
+
   test('أسماء الصفوف 1 إلى 12', () {
     expect(ArStrings.gradeName(1), 'الصف الأول');
     expect(ArStrings.gradeName(5), 'الصف الخامس');

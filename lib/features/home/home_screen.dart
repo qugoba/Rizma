@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/tab_navigation.dart';
 import '../../core/db/database_provider.dart';
 import '../../core/strings/ar.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -62,7 +63,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       bottomNavigationBar: BottomNav(
         current: RizmaTab.home,
-        onSelected: (_) {},
+        onSelected: (tab) => onTabSelected(context, RizmaTab.home, tab),
       ),
     );
   }

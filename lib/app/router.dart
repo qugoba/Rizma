@@ -1,6 +1,9 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/account/account_screen.dart';
+import '../features/account/student_code_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/launch/launch_screen.dart';
 import '../features/onboarding/create_profile_draft.dart';
@@ -13,6 +16,11 @@ import '../features/profiles/profile_picker_screen.dart';
 import 'routes.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
+  String? requireActiveProfile(BuildContext context, GoRouterState state) {
+    final active = ref.read(activeProfileIdProvider);
+    return active.hasValue && active.value == null ? AppRoutes.launch : null;
+  }
+
   return GoRouter(
     initialLocation: AppRoutes.launch,
     routes: [
@@ -47,16 +55,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) =>
             PinEntryScreen(profileId: state.pathParameters['id']!),
       ),
+      // شاشات تحتاج ملفًا نشطًا (مثلًا فتح الرابط مباشرة بلا ملف): نعود
+      // لشاشة الإقلاع لتقرر الوجهة.
       GoRoute(
         path: AppRoutes.home,
-        // الرئيسية بلا ملف نشط (مثلًا فتح الرابط مباشرة): نعود لشاشة الإقلاع.
-        redirect: (context, state) {
-          final active = ref.read(activeProfileIdProvider);
-          return active.hasValue && active.value == null
-              ? AppRoutes.launch
-              : null;
-        },
+        redirect: requireActiveProfile,
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.account,
+        redirect: requireActiveProfile,
+        builder: (context, state) => const AccountScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.studentCode,
+        redirect: requireActiveProfile,
+        builder: (context, state) => const StudentCodeScreen(),
       ),
     ],
   );

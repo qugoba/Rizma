@@ -164,6 +164,53 @@ abstract final class ArStrings {
   static const navSubjects = 'المواد';
   static const navProgress = 'تقدّمي';
   static const navProfile = 'حسابي';
+  static const navSectionSoon = 'هذا القسم قيد الإعداد وسيتوفّر قريبًا.';
+
+  // حسابي (19) — مجموعة «الملف»
+  static const accountTitle = 'حسابي';
+  static const accountProfileGroup = 'الملف';
+  static const accountStudentCode = 'رمز الطالب';
+  static const accountSwitch = 'تبديل الطالب';
+  static const accountPin = 'الرمز السري';
+  static const accountPinOff = 'غير مفعّل';
+  static const accountPinOn = 'مفعّل';
+  static const accountLoadFailed = 'تعذّر تحميل حسابك.';
+
+  static String accountSummary(int grade, int stars) =>
+      '${gradeName(grade)} · ${ArStrings.stars(stars)}';
+
+  // إدارة الرمز السري من حسابي
+  static const pinManageTitle = 'الرمز السري';
+  static const pinChange = 'تغيير الرمز';
+  static const pinDisable = 'إلغاء الرمز السري';
+  static const pinEnabledNote = 'تم تفعيل الرمز السري.';
+  static const pinChangedNote = 'تم تغيير الرمز السري.';
+  static const pinDisabledNote = 'أُلغي الرمز السري.';
+
+  // رمز الطالب (29)
+  static const codeTitle = 'رمز الطالب';
+  static const codeYours = 'رمزك';
+  static const codeCopy = 'نسخ';
+  static const codeShare = 'مشاركة';
+  static const codeCopied = 'تم نسخ الرمز.';
+  static const codeWhyTitle = 'لماذا هذا الرمز؟';
+  static const codeWhy1 = 'انقل تقدّمك إلى جهاز جديد';
+  static const codeWhy2 = 'معلمك يضيفك إلى مجموعته';
+  static const codeWhy3 = 'لا يحتاج بريدًا ولا رقم هاتف';
+  static const codeNeverSynced = 'لم يُحفظ على الإنترنت بعد';
+  static const codeNothingPending = 'لا توجد نتائج بانتظار الاتصال';
+  static const codeClassGroup = 'مجموعة الصف';
+  static const codeKeepSafe =
+      'احتفظ بالرمز في مكان آمن، أو اطلب من معلمك تسجيله.';
+
+  static String codePending(int n) => switch (n) {
+    1 => 'نتيجة واحدة بانتظار الاتصال',
+    2 => 'نتيجتان بانتظار الاتصال',
+    >= 3 && <= 10 => '$n نتائج بانتظار الاتصال',
+    _ => '$n نتيجة بانتظار الاتصال',
+  };
+  static String codeClassLine(String code) => 'رمز الصف: $code';
+  static String codeShareMessage(String code) => 'رمز الطالب في رِزمة: $code';
 
   // أسماء الصفوف
   static const _gradeOrdinals = [
