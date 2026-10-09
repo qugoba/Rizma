@@ -66,6 +66,12 @@ class ProfilesDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
+  Future<void> setGrade(String id, int grade) async {
+    await (update(profiles)..where((p) => p.id.equals(id))).write(
+      ProfilesCompanion(grade: Value(grade)),
+    );
+  }
+
   Future<void> touch(String id, DateTime when) async {
     await (update(profiles)..where((p) => p.id.equals(id))).write(
       ProfilesCompanion(lastActiveAt: Value(when)),

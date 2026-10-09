@@ -25,6 +25,13 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
+  /// كل الإعدادات التي يبدأ مفتاحها بـ [prefix] (مفتاح ← قيمة)، وتتحدّث تلقائيًا.
+  Stream<Map<String, String>> watchByPrefix(String prefix) {
+    return (select(appSettings)..where((s) => s.key.like('$prefix%')))
+        .watch()
+        .map((rows) => {for (final r in rows) r.key: r.value});
+  }
+
   Future<void> remove(String key) async {
     await (delete(appSettings)..where((s) => s.key.equals(key))).go();
   }

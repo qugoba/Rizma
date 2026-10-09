@@ -1,8 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rizma/core/db/app_database.dart';
 import 'package:rizma/core/strings/ar.dart';
 import 'package:rizma/features/account/account_providers.dart';
+import 'package:rizma/features/account/preferences_repository.dart';
+import 'package:rizma/features/account/widgets/setting_widgets.dart';
+import 'package:rizma/core/widgets/rizma_switch.dart';
 import 'package:rizma/features/profiles/profile_repository.dart';
 
 import 'helpers/app_harness.dart';
@@ -248,6 +252,195 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text(ArStrings.accountProfileGroup), findsOneWidget);
         expect(find.text(ArStrings.codeWhyTitle), findsNothing);
+      }),
+    );
+  });
+  group('حسابي — الدراسة والتخزين وعام', () {
+    Future<void> show(WidgetTester tester, String text) async {
+      await tester.ensureVisible(find.text(text));
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> tapText(WidgetTester tester, String text) async {
+      await show(tester, text);
+      await tester.tap(find.text(text));
+      await tester.pumpAndSettle();
+    }
+
+    Future<ProfilePrefs> prefsOf(WidgetTester tester, AppDatabase db) async {
+      final p = await only(tester, db);
+      return (await tester.runAsync(
+        () => PreferencesRepository(db).read(p.id),
+      ))!;
+    }
+
+    double textScale(WidgetTester tester) => MediaQuery.of(
+      tester.element(find.byType(Scaffold).first),
+    ).textScaler.scale(1);
+
+    testWidgets(
+      'تغيير الصف: يحدّث القاعدة والرأس والقيمة وينبّه أن المحتوى للصف الخامس',
+      (tester) => scenario(tester, seed: seedAnas, (db) async {
+        await openAccount(tester);
+        expect(find.text(ArStrings.gradeOrdinal(5)), findsOneWidget);
+
+        await tapText(tester, ArStrings.accountGrade);
+        expect(find.text(ArStrings.gradeSheetTitle), findsOneWidget);
+        expect(find.text(ArStrings.gradeContentSoon(5)), findsOneWidget);
+
+        await tester.tap(find.text('7'));
+        await tester.pumpAndSettle();
+
+        expect((await only(tester, db)).grade, 7);
+        expect(find.text(ArStrings.accountSummary(7, 0)), findsOneWidget);
+        expect(find.text(ArStrings.gradeOrdinal(7)), findsOneWidget);
+        expect(find.text(ArStrings.gradeChanged(7)), findsOneWidget);
+      }),
+    );
+
+    testWidgets(
+      'إغلاق ورقة الصف بلا اختيار لا يغيّر شيئًا',
+      (tester) => scenario(tester, seed: seedAnas, (db) async {
+        await openAccount(tester);
+        await tapText(tester, ArStrings.accountGrade);
+        await tester.tapAt(const Offset(20, 40));
+        await tester.pumpAndSettle();
+        expect((await only(tester, db)).grade, 5);
+      }),
+    );
+
+    testWidgets(
+      'حجم الخط: يُحفظ ويُطبَّق على التطبيق كله',
+      (tester) => scenario(tester, seed: seedAnas, (db) async {
+        await openAccount(tester);
+        expect(find.text(ArStrings.fontSizeMedium), findsOneWidget);
+        expect(textScale(tester), 1.0);
+
+        await tapText(tester, ArStrings.accountFontSize);
+        await tester.tap(find.text(ArStrings.fontSizeLarge).last);
+        await tester.pumpAndSettle();
+
+        expect((await prefsOf(tester, db)).fontSize, FontSizeChoice.large);
+        expect(find.text(ArStrings.fontSizeLarge), findsOneWidget);
+        expect(textScale(tester), closeTo(1.15, 0.001));
+      }),
+    );
+
+    testWidgets(
+      'حجم الخط خاص بكل طالب: طالب آخر يرى الحجم المتوسط',
+      (tester) => scenario(
+        tester,
+        seed: (repo) async {
+          await repo.create(name: 'أنس', grade: 5, color: ProfileColor.teal);
+          await repo.create(name: 'ليان', grade: 2, color: ProfileColor.coral);
+        },
+        (db) async {
+          // ليان آخر من أُنشئ فهي النشطة؛ نكبّر خط أنس عبر القاعدة.
+          final all = await onDb(tester, db.profilesDao.getAll);
+          final anas = all.firstWhere((p) => p.name == 'أنس');
+          await onDb(
+            tester,
+            () => PreferencesRepository(
+              db,
+            ).setFontSize(anas.id, FontSizeChoice.large),
+          );
+          await tester.tap(find.text('ليان'));
+          await tester.pumpAndSettle();
+          expect(textScale(tester), 1.0);
+        },
+      ),
+    );
+
+    testWidgets(
+      'مفاتيح الأصوات وWi-Fi والفيديو: تبدأ بالافتراضي وتُحفظ',
+      (tester) => scenario(tester, seed: seedAnas, (db) async {
+        await openAccount(tester);
+        bool on(String label) => tester
+            .widget<RizmaSwitch>(
+              find.byWidgetPredicate(
+                (w) => w is RizmaSwitch && w.semanticsLabel == label,
+              ),
+            )
+            .value;
+
+        await show(tester, ArStrings.accountAutoVideo);
+        expect(on(ArStrings.accountGameSounds), isTrue);
+        expect(on(ArStrings.accountWifiOnly), isTrue);
+        expect(on(ArStrings.accountAutoVideo), isFalse);
+
+        for (final label in [
+          ArStrings.accountGameSounds,
+          ArStrings.accountWifiOnly,
+          ArStrings.accountAutoVideo,
+        ]) {
+          await tester.tap(
+            find.byWidgetPredicate(
+              (w) => w is RizmaSwitch && w.semanticsLabel == label,
+            ),
+          );
+          await tester.pumpAndSettle();
+        }
+
+        expect(on(ArStrings.accountGameSounds), isFalse);
+        expect(on(ArStrings.accountWifiOnly), isFalse);
+        expect(on(ArStrings.accountAutoVideo), isTrue);
+        final saved = await prefsOf(tester, db);
+        expect(saved.gameSounds, isFalse);
+        expect(saved.wifiOnly, isFalse);
+        expect(saved.autoVideo, isTrue);
+      }),
+    );
+
+    testWidgets(
+      'التخزين: ملاحظة «عند توفرها» وإدارة التنزيلات حالة فارغة صادقة',
+      (tester) => scenario(tester, seed: seedAnas, (db) async {
+        await openAccount(tester);
+        await show(tester, ArStrings.accountStorageNote);
+        expect(find.text(ArStrings.accountStorageNote), findsOneWidget);
+
+        await tapText(tester, ArStrings.accountManageDownloads);
+        expect(find.text(ArStrings.downloadsEmptyTitle), findsOneWidget);
+
+        await tester.tap(find.bySemanticsLabel(ArStrings.back));
+        await tester.pumpAndSettle();
+        expect(find.text(ArStrings.accountProfileGroup), findsOneWidget);
+      }),
+    );
+
+    testWidgets(
+      'الوضع الليلي معطّل مع «قريبًا» ولا يستجيب للضغط',
+      (tester) => scenario(tester, seed: seedAnas, (db) async {
+        await openAccount(tester);
+        await show(tester, ArStrings.accountNightMode);
+        expect(find.byType(SoonSettingRow), findsOneWidget);
+        expect(find.text(ArStrings.accountSoon), findsOneWidget);
+
+        final night = find.byWidgetPredicate(
+          (w) =>
+              w is RizmaSwitch &&
+              w.semanticsLabel == ArStrings.accountNightMode,
+        );
+        await tester.tap(night, warnIfMissed: false);
+        await tester.pumpAndSettle();
+        expect(tester.widget<RizmaSwitch>(night).value, isFalse);
+      }),
+    );
+
+    testWidgets(
+      'الخصوصية وعن رزمة تفتحان ورقتي معلومات',
+      (tester) => scenario(tester, seed: seedAnas, (db) async {
+        await openAccount(tester);
+
+        await tapText(tester, ArStrings.accountPrivacy);
+        expect(find.text(ArStrings.privacyTitle), findsOneWidget);
+        expect(find.text(ArStrings.privacy1), findsOneWidget);
+        await tester.tap(find.text(ArStrings.close));
+        await tester.pumpAndSettle();
+        expect(find.text(ArStrings.privacy1), findsNothing);
+
+        await tapText(tester, ArStrings.accountAbout);
+        expect(find.text(ArStrings.aboutTitle), findsOneWidget);
+        expect(find.text(ArStrings.about3), findsOneWidget);
       }),
     );
   });

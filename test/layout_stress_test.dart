@@ -179,4 +179,50 @@ void main() {
       },
     ),
   );
+  for (final scale in [1.0, 1.5]) {
+    testWidgets(
+      'حسابي بمجموعاته وأوراقه على 320×568 وخط ×$scale',
+      (tester) => scenario(
+        tester,
+        seed: (repo) async =>
+            repo.create(name: 'أنس', grade: 5, color: ProfileColor.teal),
+        (db) async {
+          await tester.binding.setSurfaceSize(const Size(320, 568));
+          tester.platformDispatcher.textScaleFactorTestValue = scale;
+          addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+          await tester.pumpAndSettle();
+          await tapVisible(tester, find.text(ArStrings.navProfile));
+          await tester.pumpAndSettle();
+
+          for (final label in [
+            ArStrings.accountNightMode,
+            ArStrings.accountStorageNote,
+            ArStrings.accountAbout,
+          ]) {
+            await tester.ensureVisible(find.text(label));
+            await tester.pumpAndSettle();
+            expect(tester.takeException(), isNull, reason: label);
+          }
+
+          for (final entry in [
+            (ArStrings.accountGrade, ArStrings.gradeSheetTitle),
+            (ArStrings.accountFontSize, ArStrings.fontSheetTitle),
+            (ArStrings.accountPrivacy, ArStrings.privacyTitle),
+            (ArStrings.accountAbout, ArStrings.aboutTitle),
+          ]) {
+            await tapVisible(tester, find.text(entry.$1));
+            await tester.pumpAndSettle();
+            expect(find.text(entry.$2), findsWidgets);
+            expect(tester.takeException(), isNull, reason: entry.$2);
+            await tester.tapAt(const Offset(20, 20));
+            await tester.pumpAndSettle();
+          }
+
+          await tapVisible(tester, find.text(ArStrings.accountManageDownloads));
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull, reason: 'downloads');
+        },
+      ),
+    );
+  }
 }

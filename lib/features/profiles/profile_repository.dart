@@ -186,6 +186,12 @@ class ProfileRepository {
     return true;
   }
 
+  /// يغيّر صف الطالب (1–12). نتائجه ونجومه لا تتأثر.
+  Future<void> setGrade(String profileId, int grade) async {
+    if (grade < 1 || grade > 12) throw ArgumentError.value(grade, 'grade');
+    await _db.profilesDao.setGrade(profileId, grade);
+  }
+
   Future<void> setClassCode(String profileId, String? classCode) async {
     if (classCode == null || classCode.trim().isEmpty) {
       await _db.profilesDao.setClassCode(profileId, null);

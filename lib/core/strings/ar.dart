@@ -179,6 +179,51 @@ abstract final class ArStrings {
   static String accountSummary(int grade, int stars) =>
       '${gradeName(grade)} · ${ArStrings.stars(stars)}';
 
+  // حسابي — الدراسة
+  static const accountStudyGroup = 'الدراسة';
+  static const accountGrade = 'الصف';
+  static const accountFontSize = 'حجم الخط';
+  static const accountGameSounds = 'أصوات الألعاب';
+  static const fontSizeSmall = 'صغير';
+  static const fontSizeMedium = 'متوسط';
+  static const fontSizeLarge = 'كبير';
+  static const fontSheetTitle = 'حجم الخط';
+  static const gradeSheetTitle = 'اختر صفّك';
+
+  static String gradeContentSoon(int contentGrade) =>
+      'محتوى هذا الصف لم يُضف بعد. ستواصل بمحتوى ${gradeName(contentGrade)} حتى يتوفّر.';
+  static String gradeChanged(int grade) =>
+      'تم تغيير الصف إلى ${gradeName(grade)}.';
+
+  // حسابي — التنزيل والتخزين
+  static const accountStorageGroup = 'التنزيل والتخزين';
+  static const accountWifiOnly = 'التنزيل عبر Wi-Fi فقط';
+  static const accountAutoVideo = 'تنزيل الفيديو تلقائيًا';
+  static const accountManageDownloads = 'إدارة التنزيلات';
+  static const accountStorageNote = 'يعمل مع التنزيلات عند توفرها.';
+  static const downloadsTitle = 'إدارة التنزيلات';
+  static const downloadsEmptyTitle = 'لا توجد تنزيلات بعد';
+  static const downloadsEmptyBody =
+      'حين تنزّل دروسًا لتتعلّم دون إنترنت ستظهر هنا مع حجمها.';
+
+  // حسابي — عام
+  static const accountGeneralGroup = 'عام';
+  static const accountNightMode = 'الوضع الليلي';
+  static const accountSoon = 'قريبًا';
+  static const accountPrivacy = 'الخصوصية: بياناتك تبقى على جهازك';
+  static const accountAbout = 'عن رزمة · مبادرة شبابية مجتمعية';
+  static const privacyTitle = 'الخصوصية';
+  static const privacy1 = 'ملفك وتقدّمك ونجومك محفوظة على هذا الجهاز.';
+  static const privacy2 =
+      'لا نطلب بريدًا إلكترونيًا ولا رقم هاتف ولا كلمة مرور.';
+  static const privacy3 = 'الرمز السري يُحفظ مجزّأً ولا يُحفظ نصًّا.';
+  static const aboutTitle = 'عن رزمة';
+  static const about1 =
+      'رِزمة مبادرة شبابية مجتمعية تحوّل المحتوى الذي يُقرأ إلى تعلّم يُمارس.';
+  static const about2 = 'صُمّمت لتعمل دون إنترنت.';
+  static const about3 = 'عناوين الدروس الحالية مؤقتة وتنتظر مراجعة معلمين.';
+  static const close = 'إغلاق';
+
   // إدارة الرمز السري من حسابي
   static const pinManageTitle = 'الرمز السري';
   static const pinChange = 'تغيير الرمز';
@@ -229,5 +274,8 @@ abstract final class ArStrings {
   ];
 
   /// مثال: الصف الخامس
-  static String gradeName(int grade) => 'الصف ${_gradeOrdinals[grade - 1]}';
+  static String gradeName(int grade) => 'الصف ${gradeOrdinal(grade)}';
+
+  /// مثال: الخامس
+  static String gradeOrdinal(int grade) => _gradeOrdinals[grade - 1];
 }

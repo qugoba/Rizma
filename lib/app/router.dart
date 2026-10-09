@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/account/account_screen.dart';
+import '../features/account/downloads_screen.dart';
 import '../features/account/student_code_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/launch/launch_screen.dart';
@@ -71,6 +72,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.studentCode,
         redirect: requireActiveProfile,
         builder: (context, state) => const StudentCodeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.downloads,
+        redirect: requireActiveProfile,
+        builder: (context, state) => const DownloadsScreen(),
       ),
     ],
   );

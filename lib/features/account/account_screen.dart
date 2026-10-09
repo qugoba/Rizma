@@ -1,27 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/routes.dart';
 import '../../app/tab_navigation.dart';
-import '../../core/constants/app_assets.dart';
 import '../../core/db/app_database.dart';
 import '../../core/strings/ar.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/profile_palette.dart';
 import '../../core/widgets/bottom_nav.dart';
-import '../../core/widgets/icon_tile.dart';
 import '../../core/widgets/mascot.dart';
 import '../../core/widgets/rizma_card.dart';
+import '../catalog/catalog_providers.dart';
 import '../profiles/active_profile_provider.dart';
 import '../profiles/pin_setup_sheet.dart';
 import '../profiles/profile_providers.dart';
+import 'account_providers.dart';
 import 'pin_manage_sheet.dart';
+import 'preferences_repository.dart';
+import 'widgets/account_sheets.dart';
+import 'widgets/setting_widgets.dart';
 
-/// الشاشة 19 «حسابي» — مجموعة «الملف» فقط (رمز الطالب، تبديل الطالب، الرمز
-/// السري). مجموعات الدراسة والتنزيل والعام تنتظر مراحلها.
+/// الشاشة 19 «حسابي»: الملف، الدراسة، التنزيل والتخزين، عام.
+/// «الوضع الليلي» معطّل («قريبًا») لأن الثيم الداكن لم يُبنَ بعد، ومفاتيح
+/// التخزين والأصوات تُحفظ الآن وتُقرأ حين تُبنى ميزاتها.
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
@@ -61,10 +64,47 @@ class AccountScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _onGradeTap(
+    BuildContext context,
+    WidgetRef ref,
+    Profile profile,
+  ) async {
+    // صف الكتالوج المتوفّر؛ إن اختلف عن المختار نخبر الطالب.
+    final contentGrade = ref.read(catalogProvider).value?.grade;
+    final grade = await showGradeSheet(
+      context,
+      current: profile.grade,
+      contentGrade: contentGrade,
+    );
+    if (grade == null || grade == profile.grade) return;
+    await ref.read(profileRepositoryProvider).setGrade(profile.id, grade);
+    if (context.mounted) _note(context, ArStrings.gradeChanged(grade));
+  }
+
+  Future<void> _onFontTap(
+    BuildContext context,
+    WidgetRef ref,
+    Profile profile,
+    ProfilePrefs prefs,
+  ) async {
+    final choice = await showChoiceSheet<FontSizeChoice>(
+      context,
+      title: ArStrings.fontSheetTitle,
+      options: [for (final c in FontSizeChoice.values) (c, _fontSizeLabel(c))],
+      selected: prefs.fontSize,
+    );
+    if (choice == null) return;
+    await ref
+        .read(preferencesRepositoryProvider)
+        .setFontSize(profile.id, choice);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(activeProfileProvider);
     final stars = ref.watch(starsByProfileProvider).value ?? const {};
+    final prefs = ref.watch(activePrefsProvider).value ?? const ProfilePrefs();
+    final prefsRepo = ref.read(preferencesRepositoryProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -97,6 +137,39 @@ class AccountScreen extends ConsumerWidget {
                         onSwitch: () => context.go(AppRoutes.profiles),
                         onPin: () => _onPinTap(context, ref, p),
                       ),
+                      _StudyGroup(
+                        profile: p,
+                        prefs: prefs,
+                        onGrade: () => _onGradeTap(context, ref, p),
+                        onFontSize: () => _onFontTap(context, ref, p, prefs),
+                        onGameSounds: (v) => prefsRepo.setGameSounds(p.id, v),
+                      ),
+                      _StorageGroup(
+                        prefs: prefs,
+                        onWifiOnly: (v) => prefsRepo.setWifiOnly(p.id, v),
+                        onAutoVideo: (v) => prefsRepo.setAutoVideo(p.id, v),
+                        onManage: () => context.push(AppRoutes.downloads),
+                      ),
+                      _GeneralGroup(
+                        onPrivacy: () => showInfoSheet(
+                          context,
+                          title: ArStrings.privacyTitle,
+                          paragraphs: const [
+                            ArStrings.privacy1,
+                            ArStrings.privacy2,
+                            ArStrings.privacy3,
+                          ],
+                        ),
+                        onAbout: () => showInfoSheet(
+                          context,
+                          title: ArStrings.aboutTitle,
+                          paragraphs: const [
+                            ArStrings.about1,
+                            ArStrings.about2,
+                            ArStrings.about3,
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -109,6 +182,12 @@ class AccountScreen extends ConsumerWidget {
     );
   }
 }
+
+String _fontSizeLabel(FontSizeChoice choice) => switch (choice) {
+  FontSizeChoice.small => ArStrings.fontSizeSmall,
+  FontSizeChoice.medium => ArStrings.fontSizeMedium,
+  FontSizeChoice.large => ArStrings.fontSizeLarge,
+};
 
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader({required this.profile, required this.stars});
@@ -162,108 +241,168 @@ class _ProfileGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     final pinOn = profile.pinHash != null;
 
-    return RizmaCard(
-      padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 16, 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Text(
-              ArStrings.accountProfileGroup,
-              style: AppTextStyles.section18,
-            ),
-          ),
-          _SettingRow(
-            icon: Icons.vpn_key_outlined,
-            iconColor: AppColors.teal,
-            tint: AppColors.tealTint,
-            label: ArStrings.accountStudentCode,
-            value: profile.studentCode,
-            valueColor: AppColors.teal,
-            valueLtr: true,
-            onTap: onStudentCode,
-          ),
-          _SettingRow(
-            icon: Icons.group_outlined,
-            iconColor: AppColors.blue,
-            tint: AppColors.blueTint,
-            label: ArStrings.accountSwitch,
-            onTap: onSwitch,
-          ),
-          _SettingRow(
-            icon: Icons.lock_outline,
-            iconColor: AppColors.purple,
-            tint: AppColors.purpleTint,
-            label: ArStrings.accountPin,
-            value: pinOn ? ArStrings.accountPinOn : ArStrings.accountPinOff,
-            valueColor: pinOn ? AppColors.teal : AppColors.soft,
-            onTap: onPin,
-          ),
-        ],
-      ),
+    return SettingsGroupCard(
+      title: ArStrings.accountProfileGroup,
+      children: [
+        SettingRow(
+          icon: Icons.vpn_key_outlined,
+          iconColor: AppColors.teal,
+          tint: AppColors.tealTint,
+          label: ArStrings.accountStudentCode,
+          value: profile.studentCode,
+          valueColor: AppColors.teal,
+          valueLtr: true,
+          onTap: onStudentCode,
+        ),
+        SettingRow(
+          icon: Icons.group_outlined,
+          iconColor: AppColors.blue,
+          tint: AppColors.blueTint,
+          label: ArStrings.accountSwitch,
+          onTap: onSwitch,
+        ),
+        SettingRow(
+          icon: Icons.lock_outline,
+          iconColor: AppColors.purple,
+          tint: AppColors.purpleTint,
+          label: ArStrings.accountPin,
+          value: pinOn ? ArStrings.accountPinOn : ArStrings.accountPinOff,
+          valueColor: pinOn ? AppColors.teal : AppColors.soft,
+          onTap: onPin,
+        ),
+      ],
     );
   }
 }
 
-/// صف إعداد: أيقونة ملوّنة، عنوان، قيمة اختيارية، وسهم. خط سفلي رفيع بين الصفوف.
-class _SettingRow extends StatelessWidget {
-  const _SettingRow({
-    required this.icon,
-    required this.iconColor,
-    required this.tint,
-    required this.label,
-    required this.onTap,
-    this.value,
-    this.valueColor = AppColors.teal,
-    this.valueLtr = false,
+class _StudyGroup extends StatelessWidget {
+  const _StudyGroup({
+    required this.profile,
+    required this.prefs,
+    required this.onGrade,
+    required this.onFontSize,
+    required this.onGameSounds,
   });
 
-  final IconData icon;
-  final Color iconColor;
-  final Color tint;
-  final String label;
-  final String? value;
-  final Color valueColor;
-  final bool valueLtr;
-  final VoidCallback onTap;
+  final Profile profile;
+  final ProfilePrefs prefs;
+  final VoidCallback onGrade;
+  final VoidCallback onFontSize;
+  final ValueChanged<bool> onGameSounds;
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: value == null ? label : '$label، $value',
-      excludeSemantics: true,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 56),
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: AppColors.line)),
-          ),
-          child: Row(
-            spacing: 12,
-            children: [
-              IconTile(
-                iconData: icon,
-                iconColor: iconColor,
-                color: tint,
-                size: 40,
-                iconSize: 20,
-                radius: 12,
-              ),
-              Expanded(child: Text(label, style: AppTextStyles.body15)),
-              if (value != null)
-                Text(
-                  value!,
-                  textDirection: valueLtr ? TextDirection.ltr : null,
-                  style: AppTextStyles.label14.copyWith(color: valueColor),
-                ),
-              SvgPicture.asset(AppAssets.fwdRow, width: 18, height: 18),
-            ],
-          ),
+    return SettingsGroupCard(
+      title: ArStrings.accountStudyGroup,
+      children: [
+        SettingRow(
+          icon: Icons.menu_book_outlined,
+          iconColor: AppColors.teal,
+          tint: AppColors.tealTint,
+          label: ArStrings.accountGrade,
+          value: ArStrings.gradeOrdinal(profile.grade),
+          onTap: onGrade,
         ),
-      ),
+        SettingRow(
+          icon: Icons.text_fields_rounded,
+          iconColor: AppColors.blue,
+          tint: AppColors.blueTint,
+          label: ArStrings.accountFontSize,
+          value: _fontSizeLabel(prefs.fontSize),
+          onTap: onFontSize,
+        ),
+        SettingSwitchRow(
+          icon: Icons.volume_up_outlined,
+          iconColor: AppColors.purple,
+          tint: AppColors.purpleTint,
+          label: ArStrings.accountGameSounds,
+          value: prefs.gameSounds,
+          onChanged: onGameSounds,
+        ),
+      ],
+    );
+  }
+}
+
+class _StorageGroup extends StatelessWidget {
+  const _StorageGroup({
+    required this.prefs,
+    required this.onWifiOnly,
+    required this.onAutoVideo,
+    required this.onManage,
+  });
+
+  final ProfilePrefs prefs;
+  final ValueChanged<bool> onWifiOnly;
+  final ValueChanged<bool> onAutoVideo;
+  final VoidCallback onManage;
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsGroupCard(
+      title: ArStrings.accountStorageGroup,
+      footnote: ArStrings.accountStorageNote,
+      children: [
+        SettingSwitchRow(
+          icon: Icons.wifi_rounded,
+          iconColor: AppColors.teal,
+          tint: AppColors.tealTint,
+          label: ArStrings.accountWifiOnly,
+          value: prefs.wifiOnly,
+          onChanged: onWifiOnly,
+        ),
+        SettingSwitchRow(
+          icon: Icons.videocam_outlined,
+          iconColor: AppColors.coral,
+          tint: AppColors.coralTint,
+          label: ArStrings.accountAutoVideo,
+          value: prefs.autoVideo,
+          onChanged: onAutoVideo,
+        ),
+        SettingRow(
+          icon: Icons.download_outlined,
+          iconColor: AppColors.blue,
+          tint: AppColors.blueTint,
+          label: ArStrings.accountManageDownloads,
+          onTap: onManage,
+        ),
+      ],
+    );
+  }
+}
+
+class _GeneralGroup extends StatelessWidget {
+  const _GeneralGroup({required this.onPrivacy, required this.onAbout});
+
+  final VoidCallback onPrivacy;
+  final VoidCallback onAbout;
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsGroupCard(
+      title: ArStrings.accountGeneralGroup,
+      children: [
+        const SoonSettingRow(
+          icon: Icons.nights_stay_outlined,
+          iconColor: AppColors.soft,
+          tint: AppColors.mute,
+          label: ArStrings.accountNightMode,
+        ),
+        SettingRow(
+          icon: Icons.shield_outlined,
+          iconColor: AppColors.teal,
+          tint: AppColors.tealTint,
+          label: ArStrings.accountPrivacy,
+          onTap: onPrivacy,
+        ),
+        SettingRow(
+          icon: Icons.public_rounded,
+          iconColor: AppColors.amberDark,
+          tint: AppColors.amberTint,
+          label: ArStrings.accountAbout,
+          onTap: onAbout,
+        ),
+      ],
     );
   }
 }

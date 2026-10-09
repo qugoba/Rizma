@@ -10,6 +10,7 @@ abstract final class AppRoutes {
   static const home = '/home';
   static const account = '/account';
   static const studentCode = '/account/code';
+  static const downloads = '/account/downloads';
 
   static String pin(String profileId) => '/pin/$profileId';
 }
