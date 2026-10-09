@@ -36,6 +36,13 @@ Future<void> scenario(
   // go_router يبدأ من مسار المنصّة الافتراضي، وهو يبقى من الاختبار السابق
   // (مثل /home) ما لم نُعد ضبطه.
   tester.platformDispatcher.defaultRouteNameTestValue = '/';
+  // يطبع تفاصيل أخطاء التخطيط (اسم الودجت المسبّب) بدل رسالة `takeException` المختصرة.
+  final previousOnError = FlutterError.onError;
+  FlutterError.onError = (details) {
+    FlutterError.dumpErrorToConsole(details, forceReport: true);
+    previousOnError?.call(details);
+  };
+  addTearDown(() => FlutterError.onError = previousOnError);
   await tester.pumpWidget(
     ProviderScope(
       overrides: [

@@ -56,3 +56,6 @@
 | `subject_visuals.dart` | `subjectIconAsset(key)`: مفتاح الأيقونة ← ملف SVG. |
 
 الواجهة **لا تكتب أسماء المواد والدروس في الكود**؛ تقرأها من الكتالوج.
+
+## ملاحظة عن الشاشات الضيقة
+`PinPad` ملفوف بـ `FittedBox(scaleDown)` (عرضه الطبيعي 276)، و`BottomNav` يستعمل `Flexible` لكل تبويب و`FittedBox` لنص الاسم، فلا يفيضان على شاشة 320 أو بخط مكبّر. التفاصيل في `00_architecture.md` و`12_testing.md`.

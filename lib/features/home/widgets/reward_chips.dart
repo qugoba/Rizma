@@ -17,8 +17,10 @@ class RewardChips extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 0),
-      child: Row(
+      // Wrap: على شاشة ضيقة أو بخط مكبّر تنزل الشارة الثانية لسطر جديد.
+      child: Wrap(
         spacing: 8,
+        runSpacing: 8,
         children: [
           if (streak > 0)
             _Chip(

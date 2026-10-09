@@ -207,17 +207,21 @@ class _ColorPicker extends StatelessWidget {
       spacing: 10,
       children: [
         Text(ArStrings.setupPickColor, style: AppTextStyles.body16Strong),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 14,
-          children: [
-            for (final color in ProfileColor.values)
-              _ColorDot(
-                color: color,
-                selected: color == selected,
-                onTap: () => onSelected(color),
-              ),
-          ],
+        // FittedBox: خمس دوائر بعرض 56 لا تتسع في 280، فتتقلّص قليلًا بدل أن تفيض.
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 14,
+            children: [
+              for (final color in ProfileColor.values)
+                _ColorDot(
+                  color: color,
+                  selected: color == selected,
+                  onTap: () => onSelected(color),
+                ),
+            ],
+          ),
         ),
       ],
     );

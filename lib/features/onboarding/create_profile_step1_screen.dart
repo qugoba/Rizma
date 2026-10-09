@@ -198,9 +198,9 @@ class _GradeGroupSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
+        // Wrap: على شاشة ضيقة أو بخط مكبّر ينزل التلميح إلى السطر التالي بدل أن يفيض.
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.end,
           spacing: 8,
           children: [
             Text(group.title, style: AppTextStyles.section18),

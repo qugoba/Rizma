@@ -222,21 +222,25 @@ class _ProfileCard extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 6,
-                      children: [
-                        _StarsChip(stars: stars),
-                        if (locked)
-                          const IconTile(
-                            iconData: Icons.lock_outline_rounded,
-                            iconColor: AppColors.soft,
-                            color: AppColors.mute,
-                            size: 28,
-                            iconSize: 16,
-                            radius: 14,
-                          ),
-                      ],
+                    // FittedBox: البطاقة ضيقة على الشاشات الصغيرة (عمودان فقط).
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 6,
+                        children: [
+                          _StarsChip(stars: stars),
+                          if (locked)
+                            const IconTile(
+                              iconData: Icons.lock_outline_rounded,
+                              iconColor: AppColors.soft,
+                              color: AppColors.mute,
+                              size: 28,
+                              iconSize: 16,
+                              radius: 14,
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

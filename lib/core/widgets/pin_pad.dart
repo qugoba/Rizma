@@ -75,19 +75,23 @@ class PinPad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 12,
-        children: [
-          for (final row in _rows)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 18,
-              children: [for (final key in row) _buildKey(key)],
-            ),
-        ],
+    // FittedBox: على شاشة أضيق من 276 (عرض اللوحة) تتقلّص اللوحة بدل أن تفيض.
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 12,
+          children: [
+            for (final row in _rows)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 18,
+                children: [for (final key in row) _buildKey(key)],
+              ),
+          ],
+        ),
       ),
     );
   }

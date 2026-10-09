@@ -48,12 +48,15 @@ class BottomNav extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Flexible: على شاشة ضيقة أو بخط مكبّر تنكمش العناصر بدل أن تفيض.
               for (final item in _items)
-                _NavItem(
-                  label: item.label,
-                  asset: item.asset,
-                  selected: item.tab == current,
-                  onTap: () => onSelected(item.tab),
+                Flexible(
+                  child: _NavItem(
+                    label: item.label,
+                    asset: item.asset,
+                    selected: item.tab == current,
+                    onTap: () => onSelected(item.tab),
+                  ),
                 ),
             ],
           ),
@@ -103,9 +106,13 @@ class _NavItem extends StatelessWidget {
                   height: 22,
                   colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
                 ),
-                Text(
-                  label,
-                  style: AppTextStyles.captionBold13.copyWith(color: color),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    style: AppTextStyles.captionBold13.copyWith(color: color),
+                  ),
                 ),
               ],
             ),
