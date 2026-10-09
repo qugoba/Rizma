@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../strings/ar.dart';
 import '../theme/app_colors.dart';
+import 'pressable_scale.dart';
+import '../utils/haptics.dart';
 
 /// نقاط الرمز السري: المملوء منها = أرقام أُدخلت.
 class PinDots extends StatelessWidget {
@@ -101,7 +103,12 @@ class PinPad extends StatelessWidget {
     if (key == 'del') {
       return _PinKey(
         semanticsLabel: ArStrings.pinDelete,
-        onTap: enabled ? onDelete : null,
+        onTap: enabled
+            ? () {
+                Haptics.tap();
+                onDelete();
+              }
+            : null,
         filled: false,
         child: const Icon(
           Icons.backspace_outlined,
@@ -112,7 +119,12 @@ class PinPad extends StatelessWidget {
     }
     return _PinKey(
       semanticsLabel: key,
-      onTap: enabled ? () => onDigit(key) : null,
+      onTap: enabled
+          ? () {
+              Haptics.tap();
+              onDigit(key);
+            }
+          : null,
       filled: true,
       child: Text(
         key,
@@ -161,6 +173,6 @@ class _PinKey extends StatelessWidget {
           child: SizedBox(width: 80, height: 64, child: Center(child: child)),
         ),
       ),
-    );
+    ).pressable(enabled: onTap != null);
   }
 }

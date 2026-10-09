@@ -11,6 +11,22 @@ import 'router.dart';
 /// أقصى عرض للمحتوى (هاتف كبير).
 const _maxContentWidth = 480.0;
 
+/// تمرير مرِن (ارتداد خفيف عند الحافة) على كل المنصات، بلا توهّج أزرق على أندرويد.
+class _RizmaScrollBehavior extends MaterialScrollBehavior {
+  const _RizmaScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const BouncingScrollPhysics();
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) => child;
+}
+
 class RizmaApp extends ConsumerWidget {
   const RizmaApp({super.key});
 
@@ -23,6 +39,7 @@ class RizmaApp extends ConsumerWidget {
       title: ArStrings.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      scrollBehavior: const _RizmaScrollBehavior(),
       locale: const Locale('ar'),
       supportedLocales: const [Locale('ar')],
       localizationsDelegates: const [

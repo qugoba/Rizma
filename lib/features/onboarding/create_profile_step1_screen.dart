@@ -11,6 +11,8 @@ import '../../core/widgets/mascot.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/screen_top_bar.dart';
 import 'create_profile_draft.dart';
+import '../../core/widgets/pressable_scale.dart';
+import '../../core/utils/haptics.dart';
 
 class _GradeGroup {
   const _GradeGroup({
@@ -215,7 +217,10 @@ class _GradeGroupSection extends StatelessWidget {
                 child: _GradeTile(
                   grade: grade,
                   selected: grade == selected,
-                  onTap: () => onSelected(grade),
+                  onTap: () {
+                    Haptics.tap();
+                    onSelected(grade);
+                  },
                 ),
               ),
           ],
@@ -269,6 +274,6 @@ class _GradeTile extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ).pressable();
   }
 }

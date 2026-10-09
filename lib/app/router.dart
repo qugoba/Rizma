@@ -14,6 +14,7 @@ import '../features/onboarding/welcome_screen.dart';
 import '../features/profiles/active_profile_provider.dart';
 import '../features/profiles/pin_entry_screen.dart';
 import '../features/profiles/profile_picker_screen.dart';
+import 'page_transitions.dart';
 import 'routes.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -28,15 +29,24 @@ final routerProvider = Provider<GoRouter>((ref) {
       // تقرر الوجهة عند فتح التطبيق (انظر launch_plan.dart).
       GoRoute(
         path: AppRoutes.launch,
-        builder: (context, state) => const LaunchScreen(),
+        pageBuilder: (context, state) => appPage(
+          state: state,
+          child: const LaunchScreen(),
+          motion: PageMotion.tab,
+        ),
       ),
       GoRoute(
         path: AppRoutes.welcome,
-        builder: (context, state) => const WelcomeScreen(),
+        pageBuilder: (context, state) => appPage(
+          state: state,
+          child: const WelcomeScreen(),
+          motion: PageMotion.tab,
+        ),
       ),
       GoRoute(
         path: AppRoutes.createStep1,
-        builder: (context, state) => const CreateProfileStep1Screen(),
+        pageBuilder: (context, state) =>
+            appPage(state: state, child: const CreateProfileStep1Screen()),
       ),
       GoRoute(
         path: AppRoutes.createStep2,
@@ -45,38 +55,55 @@ final routerProvider = Provider<GoRouter>((ref) {
             ref.read(createProfileDraftProvider) == null
             ? AppRoutes.createStep1
             : null,
-        builder: (context, state) => const CreateProfileStep2Screen(),
+        pageBuilder: (context, state) =>
+            appPage(state: state, child: const CreateProfileStep2Screen()),
       ),
       GoRoute(
         path: AppRoutes.profiles,
-        builder: (context, state) => const ProfilePickerScreen(),
+        pageBuilder: (context, state) => appPage(
+          state: state,
+          child: const ProfilePickerScreen(),
+          motion: PageMotion.tab,
+        ),
       ),
       GoRoute(
         path: AppRoutes.pinPattern,
-        builder: (context, state) =>
-            PinEntryScreen(profileId: state.pathParameters['id']!),
+        pageBuilder: (context, state) => appPage(
+          state: state,
+          child: PinEntryScreen(profileId: state.pathParameters['id']!),
+        ),
       ),
       // شاشات تحتاج ملفًا نشطًا (مثلًا فتح الرابط مباشرة بلا ملف): نعود
       // لشاشة الإقلاع لتقرر الوجهة.
       GoRoute(
         path: AppRoutes.home,
         redirect: requireActiveProfile,
-        builder: (context, state) => const HomeScreen(),
+        pageBuilder: (context, state) => appPage(
+          state: state,
+          child: const HomeScreen(),
+          motion: PageMotion.tab,
+        ),
       ),
       GoRoute(
         path: AppRoutes.account,
         redirect: requireActiveProfile,
-        builder: (context, state) => const AccountScreen(),
+        pageBuilder: (context, state) => appPage(
+          state: state,
+          child: const AccountScreen(),
+          motion: PageMotion.tab,
+        ),
       ),
       GoRoute(
         path: AppRoutes.studentCode,
         redirect: requireActiveProfile,
-        builder: (context, state) => const StudentCodeScreen(),
+        pageBuilder: (context, state) =>
+            appPage(state: state, child: const StudentCodeScreen()),
       ),
       GoRoute(
         path: AppRoutes.downloads,
         redirect: requireActiveProfile,
-        builder: (context, state) => const DownloadsScreen(),
+        pageBuilder: (context, state) =>
+            appPage(state: state, child: const DownloadsScreen()),
       ),
     ],
   );

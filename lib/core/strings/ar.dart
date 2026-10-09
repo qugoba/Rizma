@@ -224,6 +224,20 @@ abstract final class ArStrings {
   static const about3 = 'عناوين الدروس الحالية مؤقتة وتنتظر مراجعة معلمين.';
   static const close = 'إغلاق';
 
+  // حذف الملف الشخصي
+  static const accountDelete = 'حذف الملف الشخصي';
+  static const deleteWarning =
+      'سيُحذف هذا الملف نهائيًا من الجهاز ولا يمكن التراجع عن ذلك.';
+  static const deleteItem1 = 'نجومك وتقدّمك في الدروس';
+  static const deleteItem2 = 'نتائج التدريبات والاختبارات';
+  static const deleteItem3 = 'إعداداتك ورمزك السري ورمز الطالب';
+  static const deleteConfirm = 'احذف نهائيًا';
+  static const deleteCancel = 'تراجع';
+  static const deletePinTitle = 'أدخل رمزك السري لتأكيد الحذف';
+  static const deleteFailed = 'تعذّر حذف الملف، حاول مرة أخرى.';
+
+  static String deleteTitle(String name) => 'حذف ملف «$name»؟';
+
   // إدارة الرمز السري من حسابي
   static const pinManageTitle = 'الرمز السري';
   static const pinChange = 'تغيير الرمز';

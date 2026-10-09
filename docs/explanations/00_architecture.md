@@ -122,3 +122,6 @@ flutter run -d chrome --web-port=5000
 ## الشاشات الضيقة والواسعة
 - **ضيقة (320) وخط مكبّر:** لا نكتب عروضًا ثابتة تفيض. القاعدة: صف قد لا يتسع ← `Wrap` (ينزل العنصر لسطر جديد) أو `FittedBox(scaleDown)` (يتقلّص قليلًا) أو `Flexible/Expanded`. يحرس هذا `test/layout_stress_test.dart`.
 - **واسعة (كروم):** `MaterialApp.router(builder: ...)` في `rizma_app.dart` يلفّ كل الشاشات في `ConstrainedBox(maxWidth: 480)` في أعلى الوسط على خلفية رمادية. لأن `builder` فوق `Navigator` فالأوراق السفلية والرسائل تتقيّد بالعرض نفسه.
+
+## الحركة واللمس
+كل انتقال شاشة بحركة قصيرة (`appPage`)، والمحتوى يظهر تباعًا (`.fadeIn(n)`)، والضغط يصغّر العنصر قليلًا (`.pressable()`) ويهتزّ الجهاز نقرة خفيفة (`Haptics`). التفاصيل والأسباب في `15_motion_and_delete.md`.

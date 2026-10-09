@@ -218,6 +218,13 @@ void main() {
             await tester.pumpAndSettle();
           }
 
+          await tapVisible(tester, find.text(ArStrings.accountDelete));
+          await tester.pumpAndSettle();
+          expect(find.text(ArStrings.deleteConfirm), findsOneWidget);
+          expect(tester.takeException(), isNull, reason: 'delete sheet');
+          await tester.tapAt(const Offset(20, 20));
+          await tester.pumpAndSettle();
+
           await tapVisible(tester, find.text(ArStrings.accountManageDownloads));
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull, reason: 'downloads');

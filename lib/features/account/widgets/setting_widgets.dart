@@ -61,6 +61,7 @@ class SettingRow extends StatelessWidget {
     this.value,
     this.valueColor = AppColors.teal,
     this.valueLtr = false,
+    this.labelColor = AppColors.ink,
     this.trailing,
     this.semanticsLabel,
   });
@@ -72,6 +73,7 @@ class SettingRow extends StatelessWidget {
   final String? value;
   final Color valueColor;
   final bool valueLtr;
+  final Color labelColor;
   final VoidCallback? onTap;
   final Widget? trailing;
 
@@ -98,12 +100,22 @@ class SettingRow extends StatelessWidget {
             iconSize: 20,
             radius: 12,
           ),
-          Expanded(child: Text(label, style: AppTextStyles.body15)),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTextStyles.body15.copyWith(color: labelColor),
+            ),
+          ),
           if (value != null)
-            Text(
-              value!,
-              textDirection: valueLtr ? TextDirection.ltr : null,
-              style: AppTextStyles.label14.copyWith(color: valueColor),
+            // تبدّل القيمة (مثل الصف أو حجم الخط) بتلاشٍ بدل قفزة.
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 180),
+              child: Text(
+                value!,
+                key: ValueKey(value),
+                textDirection: valueLtr ? TextDirection.ltr : null,
+                style: AppTextStyles.label14.copyWith(color: valueColor),
+              ),
             ),
           if (trailing != null)
             trailing!

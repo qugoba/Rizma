@@ -5,6 +5,8 @@ import '../constants/app_assets.dart';
 import '../strings/ar.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'pressable_scale.dart';
+import '../utils/haptics.dart';
 
 enum RizmaTab { home, subjects, progress, profile }
 
@@ -55,7 +57,10 @@ class BottomNav extends StatelessWidget {
                     label: item.label,
                     asset: item.asset,
                     selected: item.tab == current,
-                    onTap: () => onSelected(item.tab),
+                    onTap: () {
+                      if (item.tab != current) Haptics.tap();
+                      onSelected(item.tab);
+                    },
                   ),
                 ),
             ],
@@ -119,6 +124,6 @@ class _NavItem extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ).pressable();
   }
 }

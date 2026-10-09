@@ -15,6 +15,8 @@ import '../../core/widgets/icon_tile.dart';
 import '../../core/widgets/mascot.dart';
 import 'active_profile_provider.dart';
 import 'profile_providers.dart';
+import '../../core/widgets/pressable_scale.dart';
+import '../../core/widgets/fade_slide_in.dart';
 
 /// الشاشة 25 — من يتعلّم الآن؟ (اختيار الملف).
 class ProfilePickerScreen extends ConsumerWidget {
@@ -37,7 +39,8 @@ class ProfilePickerScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profiles = ref.watch(profilesProvider).value ?? const <Profile>[];
+    // لا نعرض الشبكة قبل وصول الملفات، وإلا ظهرت بطاقة «طالب جديد» وحدها لحظة ثم قفزت البطاقات.
+    final profiles = ref.watch(profilesProvider).value;
     final stars = ref.watch(starsByProfileProvider).value ?? const {};
 
     return Scaffold(
@@ -54,12 +57,13 @@ class ProfilePickerScreen extends ConsumerWidget {
                   children: [
                     const _Brand(),
                     const _Heading(),
-                    _ProfilesGrid(
-                      profiles: profiles,
-                      stars: stars,
-                      onOpen: (p) => _open(context, ref, p),
-                      onNew: () => context.push(AppRoutes.createStep1),
-                    ),
+                    if (profiles != null)
+                      _ProfilesGrid(
+                        profiles: profiles,
+                        stars: stars,
+                        onOpen: (p) => _open(context, ref, p),
+                        onNew: () => context.push(AppRoutes.createStep1),
+                      ),
                     const Spacer(),
                     _RestoreLink(onTap: () => _showRestoreMessage(context)),
                     const _PrivacyNote(),
@@ -147,9 +151,11 @@ class _ProfilesGrid extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 12,
               children: [
-                Expanded(child: cards[i]),
+                Expanded(child: cards[i].fadeIn(i)),
                 Expanded(
-                  child: i + 1 < cards.length ? cards[i + 1] : const SizedBox(),
+                  child: i + 1 < cards.length
+                      ? cards[i + 1].fadeIn(i + 1)
+                      : const SizedBox(),
                 ),
               ],
             ),
@@ -249,7 +255,7 @@ class _ProfileCard extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ).pressable();
   }
 }
 
@@ -332,7 +338,7 @@ class _NewProfileCard extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ).pressable();
   }
 }
 

@@ -118,4 +118,68 @@ void main() {
       expect(() => profiles.setGrade(p.id, 13), throwsArgumentError);
     });
   });
+  group('ProfileRepository.delete', () {
+    Future<Profile> make(String name) =>
+        profiles.create(name: name, grade: 5, color: ProfileColor.teal);
+
+    test('يحذف الملف مع نشاطه وتفضيلاته ولا يمسّ ملفًا آخر', () async {
+      final a = await make('أ');
+      final b = await make('ب');
+      for (final p in [a, b]) {
+        await db.activityDao.insertAttempt(
+          profileId: p.id,
+          activityId: 'x',
+          kind: AttemptKind.practice,
+          score: 1,
+          total: 1,
+          starsEarned: 1,
+          now: DateTime(2026),
+        );
+        await db.activityDao.upsertMastery(
+          profileId: p.id,
+          conceptId: 'c',
+          mastery: 0.5,
+          now: DateTime(2026),
+        );
+        await prefs.setFontSize(p.id, FontSizeChoice.large);
+      }
+
+      final left = await profiles.delete(a.id);
+
+      expect(left, 1);
+      expect(await profiles.getById(a.id), isNull);
+      expect(await profiles.getById(b.id), isNotNull);
+      final attempts = await db.select(db.attempts).get();
+      expect(attempts.map((r) => r.profileId), [b.id]);
+      final mastery = await db.select(db.conceptMastery).get();
+      expect(mastery.map((r) => r.profileId), [b.id]);
+      expect((await prefs.read(a.id)).fontSize, FontSizeChoice.medium);
+      expect((await prefs.read(b.id)).fontSize, FontSizeChoice.large);
+    });
+
+    test('حذف الملف النشط يمسح مؤشّر الملف النشط', () async {
+      final a = await make('أ');
+      final b = await make('ب'); // الأحدث = النشط
+      expect(await profiles.readActiveId(), b.id);
+
+      await profiles.delete(b.id);
+
+      expect(await profiles.readActiveId(), isNull);
+      expect(await profiles.getById(a.id), isNotNull);
+    });
+
+    test('حذف ملف غير نشط يُبقي مؤشّر الملف النشط', () async {
+      final a = await make('أ');
+      final b = await make('ب');
+
+      await profiles.delete(a.id);
+
+      expect(await profiles.readActiveId(), b.id);
+    });
+
+    test('حذف آخر ملف يعيد 0', () async {
+      final a = await make('أ');
+      expect(await profiles.delete(a.id), 0);
+    });
+  });
 }

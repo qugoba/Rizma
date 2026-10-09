@@ -186,6 +186,28 @@ class ProfileRepository {
     return true;
   }
 
+  /// يحذف الملف نهائيًا مع كل ما يخصّه: التقدّم والمحاولات والإتقان وتفضيلاته.
+  /// إن كان هو الملف النشط يُمسح مؤشّر الملف النشط أيضًا. يعيد عدد الملفات
+  /// المتبقية. لا رجوع عن هذا (لا مزامنة بعد).
+  Future<int> delete(String profileId) async {
+    await _db.transaction(() async {
+      await _db.activityDao.clearActivity(profileId);
+      await _db.settingsDao.removeByPrefix(
+        SettingsDao.profilePrefsPrefix(profileId),
+      );
+      if (await readActiveIdRaw() == profileId) {
+        await _db.settingsDao.remove(SettingsDao.activeProfileKey);
+      }
+      await _db.profilesDao.deleteById(profileId);
+    });
+    _lockouts.remove(profileId);
+    return count();
+  }
+
+  /// معرّف الملف النشط كما هو محفوظ (دون التحقق من وجود الملف).
+  Future<String?> readActiveIdRaw() =>
+      _db.settingsDao.read(SettingsDao.activeProfileKey);
+
   /// يغيّر صف الطالب (1–12). نتائجه ونجومه لا تتأثر.
   Future<void> setGrade(String profileId, int grade) async {
     if (grade < 1 || grade > 12) throw ArgumentError.value(grade, 'grade');

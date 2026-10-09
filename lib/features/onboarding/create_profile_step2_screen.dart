@@ -22,6 +22,8 @@ import '../profiles/active_profile_provider.dart';
 import '../profiles/pin_setup_sheet.dart';
 import '../profiles/profile_providers.dart';
 import 'create_profile_draft.dart';
+import '../../core/widgets/pressable_scale.dart';
+import '../../core/utils/haptics.dart';
 
 /// الشاشة 26 — إنشاء الملف، الخطوة 2 من 2: لون الشخصية + رمز سري + رمز الصف.
 class CreateProfileStep2Screen extends ConsumerStatefulWidget {
@@ -218,7 +220,10 @@ class _ColorPicker extends StatelessWidget {
                 _ColorDot(
                   color: color,
                   selected: color == selected,
-                  onTap: () => onSelected(color),
+                  onTap: () {
+                    Haptics.tap();
+                    onSelected(color);
+                  },
                 ),
             ],
           ),
@@ -271,7 +276,7 @@ class _ColorDot extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ).pressable();
   }
 }
 

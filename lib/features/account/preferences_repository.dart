@@ -1,4 +1,5 @@
 import '../../core/db/app_database.dart';
+import '../../core/db/daos/settings_dao.dart';
 
 /// حجم الخط الذي يختاره الطالب. `scale` يُضرب في مقياس النص في كل التطبيق.
 enum FontSizeChoice {
@@ -68,7 +69,8 @@ class PreferencesRepository {
   static const wifiOnlyKey = 'wifiOnly';
   static const autoVideoKey = 'autoVideo';
 
-  static String _prefix(String profileId) => 'pref.$profileId.';
+  static String _prefix(String profileId) =>
+      SettingsDao.profilePrefsPrefix(profileId);
 
   Stream<ProfilePrefs> watch(String profileId) {
     final prefix = _prefix(profileId);

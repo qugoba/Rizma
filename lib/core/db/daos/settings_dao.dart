@@ -12,6 +12,9 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
 
   static const activeProfileKey = 'active_profile_id';
 
+  /// بادئة مفاتيح تفضيلات طالب (`pref.<id>.<name>`).
+  static String profilePrefsPrefix(String profileId) => 'pref.$profileId.';
+
   Future<String?> read(String key) async {
     final row = await (select(
       appSettings,
@@ -30,6 +33,11 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
     return (select(appSettings)..where((s) => s.key.like('$prefix%')))
         .watch()
         .map((rows) => {for (final r in rows) r.key: r.value});
+  }
+
+  /// يحذف كل الإعدادات التي يبدأ مفتاحها بـ [prefix].
+  Future<void> removeByPrefix(String prefix) async {
+    await (delete(appSettings)..where((s) => s.key.like('$prefix%'))).go();
   }
 
   Future<void> remove(String key) async {

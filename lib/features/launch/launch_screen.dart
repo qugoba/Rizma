@@ -6,6 +6,7 @@ import '../../app/routes.dart';
 import '../../core/widgets/mascot.dart';
 import '../profiles/active_profile_provider.dart';
 import 'launch_plan.dart';
+import '../../core/widgets/fade_slide_in.dart';
 
 /// شاشة إقلاع صامتة: تقرأ الملفات من القاعدة ثم تنتقل إلى الوجهة الصحيحة.
 class LaunchScreen extends ConsumerStatefulWidget {
@@ -48,6 +49,6 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Mascot(size: 96)));
+    return Scaffold(body: Center(child: const Mascot(size: 96).fadeIn()));
   }
 }

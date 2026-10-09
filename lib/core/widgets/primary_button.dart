@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'pressable_scale.dart';
 
 /// الزر الرئيسي العريض. إذا كان [onPressed] فارغًا يظهر معطّلًا.
 class PrimaryButton extends StatelessWidget {
@@ -59,6 +60,6 @@ class PrimaryButton extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ).pressable(enabled: enabled);
   }
 }

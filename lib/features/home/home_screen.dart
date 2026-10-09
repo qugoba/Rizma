@@ -17,6 +17,7 @@ import 'widgets/home_greeting.dart';
 import 'widgets/review_section.dart';
 import 'widgets/reward_chips.dart';
 import 'widgets/subjects_section.dart';
+import '../../core/widgets/fade_slide_in.dart';
 
 /// الشاشتان 03 (الرئيسية) و28 (الرئيسية — أول يوم): شاشة واحدة تتبدّل
 /// بحسب [HomeState] المشتق من البيانات.
@@ -89,9 +90,12 @@ class _HomeBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 14,
         children: [
-          HomeGreeting(state: state, onAvatarLongPress: onAvatarLongPress),
+          HomeGreeting(
+            state: state,
+            onAvatarLongPress: onAvatarLongPress,
+          ).fadeIn(0),
           if (state.hasActivity)
-            RewardChips(stars: state.stars, streak: state.streak),
+            RewardChips(stars: state.stars, streak: state.streak).fadeIn(1),
           if (featured != null)
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 0),
@@ -100,17 +104,17 @@ class _HomeBody extends StatelessWidget {
                 firstDay: state.isFirstDay,
                 onPressed: onSoon,
               ),
-            ),
+            ).fadeIn(2),
           if (state.isFirstDay)
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 0),
               child: FirstStepsCard(steps: state.firstSteps),
-            ),
+            ).fadeIn(3),
           if (state.showReviewPlaceholder)
             const Padding(
               padding: EdgeInsetsDirectional.fromSTEB(20, 0, 20, 0),
               child: ReviewPlaceholder(),
-            ),
+            ).fadeIn(4),
           if (state.showReviewSection)
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 0),
@@ -118,9 +122,12 @@ class _HomeBody extends StatelessWidget {
                 items: state.review,
                 onReview: (_) => onSoon(),
               ),
-            ),
-          SubjectsHeader(onShowAll: onSoon),
-          SubjectsCarousel(subjects: state.subjects, onOpen: (_) => onSoon()),
+            ).fadeIn(4),
+          SubjectsHeader(onShowAll: onSoon).fadeIn(5),
+          SubjectsCarousel(
+            subjects: state.subjects,
+            onOpen: (_) => onSoon(),
+          ).fadeIn(6),
           const SizedBox(height: 10),
         ],
       ),

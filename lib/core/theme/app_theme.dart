@@ -21,6 +21,13 @@ abstract final class AppTheme {
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.ground,
       fontFamily: AppTextStyles.fontFamily,
+      // رسائل عائمة مدوّرة فوق الشريط السفلي بدل شريط ملتصق بالحافة.
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.ink,
+        contentTextStyle: AppTextStyles.label14.copyWith(color: AppColors.card),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
     );
   }
 }

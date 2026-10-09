@@ -20,7 +20,9 @@ import 'account_providers.dart';
 import 'pin_manage_sheet.dart';
 import 'preferences_repository.dart';
 import 'widgets/account_sheets.dart';
+import 'widgets/delete_profile_sheet.dart';
 import 'widgets/setting_widgets.dart';
+import '../../core/widgets/fade_slide_in.dart';
 
 /// الشاشة 19 «حسابي»: الملف، الدراسة، التنزيل والتخزين، عام.
 /// «الوضع الليلي» معطّل («قريبًا») لأن الثيم الداكن لم يُبنَ بعد، ومفاتيح
@@ -99,6 +101,24 @@ class AccountScreen extends ConsumerWidget {
         .setFontSize(profile.id, choice);
   }
 
+  Future<void> _onDeleteTap(
+    BuildContext context,
+    WidgetRef ref,
+    Profile profile,
+  ) async {
+    final confirmed = await showDeleteProfileSheet(context, profile);
+    if (!confirmed || !context.mounted) return;
+    try {
+      await ref.read(profileRepositoryProvider).delete(profile.id);
+    } catch (_) {
+      if (context.mounted) _note(context, ArStrings.deleteFailed);
+      return;
+    }
+    await ref.read(activeProfileIdProvider.notifier).reload();
+    // شاشة الإقلاع تقرر الوجهة: اختيار ملف إن بقي أكثر من ملف، أو الترحيب إن لم يبقَ أحد.
+    if (context.mounted) context.go(AppRoutes.launch);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(activeProfileProvider);
@@ -128,28 +148,31 @@ class AccountScreen extends ConsumerWidget {
                       Text(
                         ArStrings.accountTitle,
                         style: AppTextStyles.heading22,
-                      ),
-                      _ProfileHeader(profile: p, stars: stars[p.id] ?? 0),
+                      ).fadeIn(0),
+                      _ProfileHeader(
+                        profile: p,
+                        stars: stars[p.id] ?? 0,
+                      ).fadeIn(1),
                       _ProfileGroup(
                         profile: p,
                         onStudentCode: () =>
                             context.push(AppRoutes.studentCode),
                         onSwitch: () => context.go(AppRoutes.profiles),
                         onPin: () => _onPinTap(context, ref, p),
-                      ),
+                      ).fadeIn(2),
                       _StudyGroup(
                         profile: p,
                         prefs: prefs,
                         onGrade: () => _onGradeTap(context, ref, p),
                         onFontSize: () => _onFontTap(context, ref, p, prefs),
                         onGameSounds: (v) => prefsRepo.setGameSounds(p.id, v),
-                      ),
+                      ).fadeIn(3),
                       _StorageGroup(
                         prefs: prefs,
                         onWifiOnly: (v) => prefsRepo.setWifiOnly(p.id, v),
                         onAutoVideo: (v) => prefsRepo.setAutoVideo(p.id, v),
                         onManage: () => context.push(AppRoutes.downloads),
-                      ),
+                      ).fadeIn(4),
                       _GeneralGroup(
                         onPrivacy: () => showInfoSheet(
                           context,
@@ -169,7 +192,10 @@ class AccountScreen extends ConsumerWidget {
                             ArStrings.about3,
                           ],
                         ),
-                      ),
+                      ).fadeIn(5),
+                      _DeleteCard(
+                        onTap: () => _onDeleteTap(context, ref, p),
+                      ).fadeIn(6),
                     ],
                   ),
                 ),
@@ -367,6 +393,27 @@ class _StorageGroup extends StatelessWidget {
           onTap: onManage,
         ),
       ],
+    );
+  }
+}
+
+class _DeleteCard extends StatelessWidget {
+  const _DeleteCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return RizmaCard(
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 16, 4),
+      child: SettingRow(
+        icon: Icons.delete_outline_rounded,
+        iconColor: AppColors.coral,
+        tint: AppColors.coralTint,
+        label: ArStrings.accountDelete,
+        labelColor: AppColors.coral,
+        onTap: onTap,
+      ),
     );
   }
 }

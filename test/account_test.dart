@@ -444,4 +444,137 @@ void main() {
       }),
     );
   });
+  group('حذف الملف الشخصي', () {
+    Future<void> openDelete(WidgetTester tester) async {
+      await openAccount(tester);
+      await tester.ensureVisible(find.text(ArStrings.accountDelete));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(ArStrings.accountDelete));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets(
+      'ملف وحيد بلا رمز: التأكيد يحذفه ويعيد إلى الترحيب',
+      (tester) => scenario(tester, seed: seedAnas, (db) async {
+        await openDelete(tester);
+        expect(find.text(ArStrings.deleteTitle('أنس')), findsOneWidget);
+        expect(find.text(ArStrings.deleteWarning), findsOneWidget);
+
+        await tester.tap(find.text(ArStrings.deleteConfirm));
+        await tester.pumpAndSettle();
+
+        expect(find.text(ArStrings.welcomeStart), findsOneWidget);
+        expect(await onDb(tester, db.profilesDao.getAll), isEmpty);
+      }),
+    );
+
+    testWidgets(
+      'التراجع يُبقي الملف',
+      (tester) => scenario(tester, seed: seedAnas, (db) async {
+        await openDelete(tester);
+        await tester.tap(find.text(ArStrings.deleteCancel));
+        await tester.pumpAndSettle();
+
+        expect(find.text(ArStrings.accountProfileGroup), findsOneWidget);
+        expect(await onDb(tester, db.profilesDao.getAll), hasLength(1));
+      }),
+    );
+
+    testWidgets(
+      'حذف الملف النشط من ملفين: يظهر الملف الباقي في شاشة الاختيار',
+      (tester) => scenario(
+        tester,
+        seed: (repo) async {
+          await repo.create(name: 'ليان', grade: 2, color: ProfileColor.coral);
+          await repo.create(name: 'أنس', grade: 5, color: ProfileColor.teal);
+        },
+        (db) async {
+          // الأحدث إنشاءً (أنس) هو النشط؛ نفتح ملف أنس من شاشة الاختيار.
+          await tester.tap(find.text('أنس'));
+          await tester.pumpAndSettle();
+          await openDelete(tester);
+          await tester.tap(find.text(ArStrings.deleteConfirm));
+          await tester.pumpAndSettle();
+
+          final left = await onDb(tester, db.profilesDao.getAll);
+          expect(left.map((p) => p.name), ['ليان']);
+          // ملف واحد بلا رمز سري ← الإقلاع يدخل رئيسيته مباشرة.
+          expect(
+            find.text(ArStrings.homeFirstDayGreeting('ليان')),
+            findsOneWidget,
+          );
+        },
+      ),
+    );
+
+    testWidgets(
+      'ملف بلا رمز لكن بنشاط وتفضيلات: يُمسح كل ما يخصّه',
+      (tester) => scenario(tester, seed: seedAnas, (db) async {
+        final p = await only(tester, db);
+        await onDb(
+          tester,
+          () => db.activityDao.insertAttempt(
+            profileId: p.id,
+            activityId: 'x',
+            kind: AttemptKind.practice,
+            score: 1,
+            total: 2,
+            starsEarned: 2,
+            now: DateTime(2026, 1, 1),
+          ),
+        );
+        await onDb(
+          tester,
+          () =>
+              PreferencesRepository(db).setFontSize(p.id, FontSizeChoice.large),
+        );
+
+        await openDelete(tester);
+        await tester.tap(find.text(ArStrings.deleteConfirm));
+        await tester.pumpAndSettle();
+
+        final attempts = await onDb(tester, () => db.select(db.attempts).get());
+        expect(attempts, isEmpty);
+        final prefs = await onDb(
+          tester,
+          () => PreferencesRepository(db).read(p.id),
+        );
+        expect(prefs.fontSize, FontSizeChoice.medium);
+      }),
+    );
+
+    testWidgets(
+      'ملف برمز سري: يُطلب الرمز أولًا، الخطأ يمنع، والصحيح يفتح التأكيد',
+      (tester) => scenario(
+        tester,
+        seed: (repo) async => repo.create(
+          name: 'أنس',
+          grade: 5,
+          color: ProfileColor.teal,
+          pin: '1234',
+        ),
+        (db) async {
+          await tester.tap(find.text('أنس'));
+          await tester.pumpAndSettle();
+          await enterPin(tester, '1234');
+          await openDelete(tester);
+
+          expect(find.text(ArStrings.deletePinTitle), findsOneWidget);
+          expect(find.text(ArStrings.deleteConfirm), findsNothing);
+
+          await enterPin(tester, '0000');
+          expect(find.text(ArStrings.pinWrong), findsOneWidget);
+          expect(find.text(ArStrings.deleteConfirm), findsNothing);
+
+          await enterPin(tester, '1234');
+          expect(find.text(ArStrings.deleteConfirm), findsOneWidget);
+          expect(await onDb(tester, db.profilesDao.getAll), hasLength(1));
+
+          await tester.tap(find.text(ArStrings.deleteConfirm));
+          await tester.pumpAndSettle();
+          expect(await onDb(tester, db.profilesDao.getAll), isEmpty);
+        },
+      ),
+    );
+  });
 }

@@ -13,6 +13,7 @@ import '../../core/widgets/rizma_card.dart';
 import '../../core/widgets/screen_top_bar.dart';
 import '../profiles/active_profile_provider.dart';
 import 'account_providers.dart';
+import '../../core/widgets/fade_slide_in.dart';
 
 /// الشاشة 29 «رمز الطالب»: الرمز مع نسخ ومشاركة، وسبب وجوده، وحالة الحفظ على
 /// الإنترنت. مجموعة الصف تظهر فقط إن أدخل الطالب رمز صف.
@@ -66,8 +67,8 @@ class StudentCodeScreen extends ConsumerWidget {
                             onShare: () => ref.read(shareTextProvider)(
                               ArStrings.codeShareMessage(profile.studentCode),
                             ),
-                          ),
-                          const _WhyCard(),
+                          ).fadeIn(0),
+                          const _WhyCard().fadeIn(1),
                           _InfoRow(
                             iconData: Icons.sync_rounded,
                             iconColor: AppColors.teal,
@@ -76,9 +77,9 @@ class StudentCodeScreen extends ConsumerWidget {
                             caption: pending == 0
                                 ? ArStrings.codeNothingPending
                                 : ArStrings.codePending(pending),
-                          ),
+                          ).fadeIn(2),
                           if (profile.classCode != null)
-                            _ClassGroupRow(profile: profile),
+                            _ClassGroupRow(profile: profile).fadeIn(3),
                           const SizedBox(height: 4),
                           Text(
                             ArStrings.codeKeepSafe,

@@ -72,6 +72,10 @@ class ProfilesDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
+  Future<void> deleteById(String id) async {
+    await (delete(profiles)..where((p) => p.id.equals(id))).go();
+  }
+
   Future<void> touch(String id, DateTime when) async {
     await (update(profiles)..where((p) => p.id.equals(id))).write(
       ProfilesCompanion(lastActiveAt: Value(when)),

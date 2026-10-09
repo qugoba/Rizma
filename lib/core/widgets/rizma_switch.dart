@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../utils/haptics.dart';
 
 /// مفتاح التشغيل بحسب التصميم (52×32). المقبض يبدأ من اليمين وهو مطفأ (RTL).
 class RizmaSwitch extends StatelessWidget {
@@ -15,15 +16,20 @@ class RizmaSwitch extends StatelessWidget {
   final ValueChanged<bool> onChanged;
   final String semanticsLabel;
 
+  void _toggle() {
+    Haptics.tap();
+    onChanged(!value);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
       toggled: value,
       label: semanticsLabel,
       excludeSemantics: true,
-      onTap: () => onChanged(!value),
+      onTap: _toggle,
       child: GestureDetector(
-        onTap: () => onChanged(!value),
+        onTap: _toggle,
         behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
